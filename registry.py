@@ -5,6 +5,7 @@ from pathlib import Path
 
 DIMENSIONS_YAML_DIR = Path(__file__).resolve().parent / "data" / "dimensions"
 DIMENSIONS_XLSX = DIMENSIONS_YAML_DIR / "dimensions.xlsx"
+ASSUMPTIONS_YAML_DIR = Path(__file__).resolve().parent / "data" / "assumptions"
 
 
 @dataclass
@@ -87,5 +88,68 @@ dimension_registry: dict[str, DimensionRegistryItem] = {
     "dim_use_methane": DimensionRegistryItem(
         contract_file="dim_use_methane",
         sheet_name="dim_use_methane",
+    ),
+}
+
+
+@dataclass
+class AssumptionRegistryItem:
+    """Registry entry for one scenario-assumption contract.
+
+    Assumption contracts are yaml-only: there is no bulk workbook to pull rows
+    from, so `sheet_name` (used by dimensions) does not apply. The per-page
+    render consumes the yaml directly via `docs/macros/contracts.load_contract`.
+    """
+
+    contract_file: str
+
+
+assumption_registry: dict[str, AssumptionRegistryItem] = {
+    "entsoe_tyndp_ntc": AssumptionRegistryItem(contract_file="entsoe_tyndp_ntc"),
+    "scenass_aviation_fuel_demand": AssumptionRegistryItem(
+        contract_file="scenass_aviation_fuel_demand"
+    ),
+    "scenass_biomass_potential": AssumptionRegistryItem(
+        contract_file="scenass_biomass_potential"
+    ),
+    "scenass_cost_generation_technologies": AssumptionRegistryItem(
+        contract_file="scenass_cost_generation_technologies"
+    ),
+    "scenass_cost_heating_technologies": AssumptionRegistryItem(
+        contract_file="scenass_cost_heating_technologies"
+    ),
+    "scenass_cost_storage_technologies": AssumptionRegistryItem(
+        contract_file="scenass_cost_storage_technologies"
+    ),
+    "scenass_electric_appliances_useful_energy_demand": AssumptionRegistryItem(
+        contract_file="scenass_electric_appliances_useful_energy_demand"
+    ),
+    "scenass_energy_reference_area": AssumptionRegistryItem(
+        contract_file="scenass_energy_reference_area"
+    ),
+    "scenass_freight_transport_useful_energy_demand": AssumptionRegistryItem(
+        contract_file="scenass_freight_transport_useful_energy_demand"
+    ),
+    "scenass_gdp": AssumptionRegistryItem(contract_file="scenass_gdp"),
+    "scenass_hdd": AssumptionRegistryItem(contract_file="scenass_hdd"),
+    "scenass_households": AssumptionRegistryItem(contract_file="scenass_households"),
+    "scenass_import_prices": AssumptionRegistryItem(
+        contract_file="scenass_import_prices"
+    ),
+    "scenass_passenger_transport_useful_energy_demand": AssumptionRegistryItem(
+        contract_file="scenass_passenger_transport_useful_energy_demand"
+    ),
+    "scenass_population": AssumptionRegistryItem(contract_file="scenass_population"),
+    "scenass_process_heat_useful_energy_demand": AssumptionRegistryItem(
+        contract_file="scenass_process_heat_useful_energy_demand"
+    ),
+    "scenass_space_heating_useful_energy_demand": AssumptionRegistryItem(
+        contract_file="scenass_space_heating_useful_energy_demand"
+    ),
+    "scenass_warm_water_useful_energy_demand": AssumptionRegistryItem(
+        contract_file="scenass_warm_water_useful_energy_demand"
+    ),
+    "scenass_working_population": AssumptionRegistryItem(
+        contract_file="scenass_working_population"
     ),
 }

@@ -2,7 +2,7 @@
 
 ## Prepare the data
 
-The first step in submitting data is preparing your data. The platform has to ways of uploading data: using a file or directly using the python client. The data should include all the compulsory [fields](fields.md)  and the standard naming convention for [variable names](/data-model/docs/variables).
+The first step in submitting data is preparing your data. The platform has to ways of uploading data: using a file or directly using the python client. The data should include all the compulsory [fields](fields.md)  and the standard naming convention for [variable names](../variables/assumptions/index.md).
 
 
 ## Upload the data using a CSV or Excel file

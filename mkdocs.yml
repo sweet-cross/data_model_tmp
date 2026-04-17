@@ -36,11 +36,12 @@ theme:
 plugins:
   - search
   - macros:
-      module_name: docs/macros/dimensions
+      module_name: docs/macros/main
       on_error_fail: true
 
 hooks:
   - docs/hooks/dimensions.py
+  - docs/hooks/assumptions.py
   - docs/hooks/templates.py
 
 markdown_extensions:
@@ -51,7 +52,7 @@ markdown_extensions:
   - pymdownx.superfences
 
 extra_css:
-  - stylesheets/dimensions.css
+  - stylesheets/contracts.css
 
 extra_javascript:
   - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js
@@ -63,6 +64,11 @@ nav:
       - Overview: dimensions/index.md
       # per-dimension pages are injected from registry.py
       # by docs/hooks/dimensions.py
+  - Variables:
+      - Assumptions:
+          - Overview: variables/assumptions/index.md
+          # per-assumption pages are injected from registry.py
+          # by docs/hooks/assumptions.py
   - Result Submission:
       - Overview: result_submission/index.md
       - Templates for result submission: result_submission/upload_templates.md
