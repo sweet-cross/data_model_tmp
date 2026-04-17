@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run *)",
+      "Bash(python -c ' *)",
+      "Bash(python -m create_docs.generate_dim_pages)",
+      "Bash(git -C E:/GIT/data_model_tmp diff docs/stylesheets/dimensions.css)",
+      "Bash(git -C E:/GIT/data_model_tmp status)",
+      "Bash(git -C E:/GIT/data_model_tmp log --oneline -5)"
+    ]
+  }
+}

@@ -1,0 +1,178 @@
+/* Dimension page layout */
+.dim-page {
+  margin-top: 0.5rem;
+}
+.dim-page-desc {
+  color: var(--md-default-fg-color--light);
+  margin: 0 0 1.25rem;
+}
+.dim-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.dim-children {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0.25rem 0 0 1.1rem;
+}
+
+/* Cards (shared by node + leaf) — same look at every depth, only indentation differs. */
+.dim-card {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 8px;
+  padding: 0.55rem 0.8rem;
+  margin: 0 !important; /* override user content */
+  background: var(--md-default-bg-color);
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.dim-card:hover {
+  background: var(--md-default-fg-color--lightest);
+  border-color: var(--md-default-fg-color--lighter);
+}
+
+/* Level accents — left border colour, decreasing intensity with depth. */
+.dim-level-0 { border-left: 4px solid var(--md-primary-fg-color); }
+.dim-level-1 { border-left: 4px solid var(--md-default-fg-color--light); }
+.dim-level-2 { border-left: 4px solid var(--md-default-fg-color--lighter); }
+.dim-level-3 { border-left: 4px solid var(--md-default-fg-color--lightest); }
+
+/* Header row: id followed by label, with a clear gap. */
+.dim-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  cursor: pointer;
+}
+/* Suppress the native disclosure marker on every browser. */
+.dim-card > summary {
+  list-style: none !important;
+}
+.dim-card > summary::-webkit-details-marker {
+  display: none !important;
+}
+.dim-card > summary::marker {
+  content: "" !important;
+  display: none !important;
+}
+/* Defensive: kill any chevron icons themes may inject via pseudo-elements.
+   Material draws its own arrow on `.md-typeset details > summary::after` using
+   `mask-image`, which is namespaced and has higher specificity than a bare
+   `.dim-card` selector — we mirror the namespace and explicitly clear the mask. */
+.md-typeset .dim-card > summary::before,
+.md-typeset .dim-card > summary::after,
+.dim-card > summary::before,
+.dim-card > summary::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+/* Collapsible cards (non-leaf) get a circle badge with +/− that swaps on open.
+   Namespaced under .md-typeset to outrank Material's own summary pseudo-element. */
+.md-typeset .dim-card:not(.dim-leaf) > summary.dim-head::before,
+.dim-card:not(.dim-leaf) > summary.dim-head::before {
+  content: "+" !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: var(--md-primary-fg-color) !important;
+  background-image: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  color: var(--md-primary-bg-color);
+  font-size: 0.85em;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-right: 0.5rem;
+  transition: background 0.12s ease;
+}
+.md-typeset .dim-card:not(.dim-leaf)[open] > summary.dim-head::before,
+.dim-card:not(.dim-leaf)[open] > summary.dim-head::before {
+  content: "\2212" !important; /* − minus sign */
+}
+/* Leaves: no children, so disable the toggle affordance entirely. */
+.dim-leaf > summary.dim-head {
+  cursor: default;
+}
+
+.dim-id {
+  font-size: 0.85em;
+  color: var(--md-default-fg-color);
+  background: transparent;
+  padding: 0;
+}
+.dim-label {
+  color: var(--md-default-fg-color--light);
+}
+.dim-desc {
+  margin: 0.35rem 0 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.9em;
+  font-style: italic;
+}
+
+/* Download buttons — both styled identically. */
+.dim-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+.dim-download-btn {
+  display: inline-block;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--md-primary-fg-color);
+  color: var(--md-primary-fg-color);
+  background: transparent;
+  font-size: 0.85em;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.dim-download-btn:hover {
+  background: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+}
+
+/* Index list */
+.dim-index {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.dim-index-item {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  transition: background 0.12s ease;
+}
+.dim-index-item:hover {
+  background: var(--md-default-fg-color--lightest);
+}
+.dim-index-item a {
+  text-decoration: none;
+  color: var(--md-default-fg-color);
+}
+.dim-index-item code {
+  font-size: 0.8em;
+  color: var(--md-default-fg-color--light);
+  background: transparent;
+  margin-left: 0.4rem;
+}
+.dim-index-item p {
+  margin: 0.3rem 0 0;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.9em;
+}

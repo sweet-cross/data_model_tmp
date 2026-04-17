@@ -32,3 +32,28 @@ theme:
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
+
+plugins:
+  - search
+  - macros:
+      module_name: docs/macros/dimensions
+      on_error_fail: true
+
+hooks:
+  - docs/hooks/dimensions.py
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences
+
+extra_css:
+  - stylesheets/dimensions.css
+
+nav:
+  - Home: index.md
+  - Dimensions:
+      - Overview: dimensions/index.md
+      # per-dimension pages are injected from create_docs/registry.py
+      # by docs/hooks/dimensions.py
