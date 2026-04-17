@@ -1,0 +1,46 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_scenario
+title: Scenario
+description: List of available scenarios
+
+# ----------------------------------------------------------------------------
+#                ----- Frictionless Table Schema -----
+# ----------------------------------------------------------------------------
+tableschema:
+
+  # ----------------------------------------------------------------------------
+  #                  FRICTIONLESS FIELDS/COLUMNS
+  # ----------------------------------------------------------------------------
+  primaryKey: [group, name, variant]
+
+  fields:
+    - name: name
+      type: string
+      description: Name of the scenario. This is unique within the scenario group.
+      constraints:
+        required: true
+        maxLength: 50
+
+    - name: group
+      type: string
+      description: The id of the scenario group this scenario belongs to
+      constraints:
+        required: true
+
+    - name: variant
+      type: string
+      description: The variant of the scenario
+      constraints:
+        required: false
+
+    - name: label
+      type: string
+      description: Labels used in graphs etc. to denote the element
+      constraints:
+        maxLength: 255
+
+    - name: explanation
+      type: string
+      description: Explanation and documentation of a single element

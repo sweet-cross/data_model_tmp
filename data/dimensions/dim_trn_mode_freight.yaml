@@ -1,0 +1,9 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_trn_mode_freight
+title: Freight transport mode
+description: |
+  List of transport modes used for freight transport
+
+contract_type: Dimension

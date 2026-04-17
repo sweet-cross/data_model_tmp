@@ -1,0 +1,9 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_trn_mode_private
+title: Private transport mode
+description: |
+  List of transport modes used for private, i.e., passenger transport
+
+contract_type: Dimension

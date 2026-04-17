@@ -1,0 +1,9 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_use_liquids
+title: Hydrogen end-uses
+description: |
+  List of end-uses of liquid fuels
+
+contract_type: Dimension

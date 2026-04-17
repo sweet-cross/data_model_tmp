@@ -1,0 +1,10 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_endusesector
+title: End-use sector
+description: |
+  Energy use sector in the sense of final energy use sectors such as transport,
+  industry, residential, etc.
+
+contract_type: Dimension

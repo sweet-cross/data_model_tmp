@@ -1,0 +1,9 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_use_methane
+title: Methane end-uses
+description: |
+  List of end-uses of methane
+
+contract_type: Dimension

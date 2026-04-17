@@ -1,0 +1,9 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_tech_storage
+title: Storage technology
+description: |
+  List of technologies used to store energy
+
+contract_type: Dimension

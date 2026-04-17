@@ -1,0 +1,9 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_tech_methane
+title: Methane technology
+description: |
+  List of technologies used to produce methane
+
+contract_type: Dimension

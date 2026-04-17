@@ -1,0 +1,8 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_fuel
+title: Fuel
+description: Secondary energy carriers, e.g. hydrogen, electricity
+
+contract_type: Dimension

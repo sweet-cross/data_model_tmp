@@ -1,0 +1,9 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_tech_generation
+title: Generation technology
+description: |
+  List of electricity generation technologies
+
+contract_type: Dimension

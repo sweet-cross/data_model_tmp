@@ -1,0 +1,53 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_model
+title: Model
+description: List of available models
+
+# ----------------------------------------------------------------------------
+#                ----- Frictionless Table Schema -----
+# ----------------------------------------------------------------------------
+tableschema:
+  # ----------------------------------------------------------------------------
+  #                  FRICTIONLESS FIELDS/COLUMNS
+  # ----------------------------------------------------------------------------
+  primaryKey: id
+
+  fields:
+    - name: id
+      type: string
+      description: |
+        ID of the model. Optimally that should be a short and descriptive name that
+        include the model version (e.g. escmodv2.1)
+      constraints:
+        required: true
+        maxLength: 50
+
+    - name: name
+      type: string
+      description: The name of the model
+      constraints:
+        required: true
+
+    - name: name_long
+      type: string
+      description: A longer version of the name of the model
+      constraints:
+        required: true
+
+    - name: version
+      type: string
+      description: The version of the model
+      constraints:
+        required: false
+
+    - name: label
+      type: string
+      description: Labels used in graphs etc. to denote the element
+      constraints:
+        maxLength: 255
+
+    - name: description
+      type: string
+      description: Explanation and documentation of a single element

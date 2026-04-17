@@ -1,0 +1,9 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_tech_liquids
+title: Liquid fuels technology
+description: |
+  List of technologies used to produce liquid fuels
+
+contract_type: Dimension

@@ -1,0 +1,9 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_tech_heat
+title: Heating technology
+description: |
+  List of technologies to produce heat supply
+
+contract_type: Dimension

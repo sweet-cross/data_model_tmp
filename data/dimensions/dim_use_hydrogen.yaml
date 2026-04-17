@@ -1,0 +1,9 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_use_hydrogen
+title: Hydrogen end-uses
+description: |
+  List of end-uses of hydrogen
+
+contract_type: Dimension

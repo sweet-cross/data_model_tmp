@@ -1,0 +1,10 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_iso_region
+title: Region
+description: |
+  Region codes according to ISO 3166-1 alpha-2. The table also contains sub-
+  regions according to ISO 3166-2.
+
+contract_type: Dimension

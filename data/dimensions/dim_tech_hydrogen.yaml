@@ -1,0 +1,9 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_tech_hydrogen
+title: Hydrogen technology
+description: |
+  List of technologies used to produce hydrogen
+
+contract_type: Dimension

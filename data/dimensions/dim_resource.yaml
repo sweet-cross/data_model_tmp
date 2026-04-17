@@ -1,0 +1,10 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: dim_resource
+title: Resource
+description: |
+  Energy resource in the sense of primary energy resources such a coal or wind.
+  Resources are sub.divided into resource types (e.g. fossil, nuclear, renewable).
+
+contract_type: Dimension
