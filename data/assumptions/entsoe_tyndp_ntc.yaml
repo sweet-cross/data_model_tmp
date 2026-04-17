@@ -1,0 +1,93 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: entsoe_tyndp_ntc
+title: Net Transfer Capacities (NTC) from ENTSO-E TYNDP
+description: |
+  Net transfer capacities (NTC) based on the ENTSO-E TYNDP
+  data. The early years are based on the historical and reference grid, the remaining
+  differentiated by the respective TYNDP scenario.
+
+# ----------------------------------------------------------------------------
+#                ----- Frictionless Table Schema -----
+# ----------------------------------------------------------------------------
+tableschema:
+  # ----------------------------------------------------------------------------
+  #                SEMANTIC FIELD DESCRIPTION
+  # ----------------------------------------------------------------------------
+  fieldDescriptors:
+    - field: value
+      type: value
+    - field: year
+      type: time
+      frequency: yearly
+    - field: from
+      type: location
+      locationType: country
+    - field: to
+      type: location
+      locationType: country
+
+  # ----------------------------------------------------------------------------
+  #                        FOREIGN KEY CONSTRAINTS
+  # ----------------------------------------------------------------------------
+  primaryKey: [tyndp_scenario, from, to, year]
+
+  foreignKeys:
+    - fields: from
+      reference:
+        resource: dim_iso_region
+        fields: id
+    - fields: to
+      reference:
+        resource: dim_iso_region
+        fields: id
+
+  # ----------------------------------------------------------------------------
+  #                  FRICTIONLESS FIELDS/COLUMNS
+  # ----------------------------------------------------------------------------
+  fields:
+    - name: tyndp_scenario
+      type: string
+      title: TYNDP Scenario
+      description: Name of the TYNDP scenario this data is associated with
+
+    - name: tyndp_year
+      type: integer
+      title: TYNDP Year
+      description: Year in which the TYNDP scenario was released
+
+    - name: from
+      type: string
+      title: From Country
+      description: Flow origination country
+
+    - name: to
+      type: string
+      title: To Country
+      description: Flow target country
+
+    - name: unit
+      type: string
+      title: Unit
+      description: Unit
+      constraints:
+        required: true
+        maxLength: 16
+
+    - name: year
+      type: integer
+      title: Year
+      description: Year of the data
+      constraints:
+        required: true
+        minimum: 1900
+        maximum: 2100
+
+    - name: value
+      type: number
+      title: Net Transfer Capacity
+      description: Net transfer capacity in the specified unit
+      constraints:
+        required: true
+        minimum: 0

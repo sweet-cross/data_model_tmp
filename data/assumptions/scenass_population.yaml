@@ -1,0 +1,89 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: scenass_population
+title: Population
+description: |
+  Population projections used as assumptions for scenario runs.
+
+# ----------------------------------------------------------------------------
+#                ----- Frictionless Table Schema -----
+# ----------------------------------------------------------------------------
+tableschema:
+
+  # ----------------------------------------------------------------------------
+  #                SEMANTIC FIELD DESCRIPTION
+  # ----------------------------------------------------------------------------
+  fieldDescriptors:
+    - field: value
+      type: value
+    - field: year
+      type: time
+      frequency: yearly
+    - field: country
+      type: location
+      locationType: country
+
+  # ----------------------------------------------------------------------------
+  #                        FOREIGN KEY CONSTRAINTS
+  # ----------------------------------------------------------------------------
+  primaryKey: [scenario_group, scenario_name, scenario_variant, country, year]
+
+  foreignKeys:
+    - fields: country
+      reference:
+        resource: dim_iso_region
+        fields: id
+    - fields: [scenario_group, scenario_name, scenario_variant]
+      reference:
+        resource: dim_scenario
+        fields: [group, name, variant]
+
+  # ----------------------------------------------------------------------------
+  #                  FRICTIONLESS FIELDS/COLUMNS
+  # ----------------------------------------------------------------------------
+  fields:
+    - name: scenario_group
+      type: string
+      title: Scenario Group
+      description: Name of the scenario group this data is associated with
+
+    - name: scenario_name
+      type: string
+      title: Scenario Name
+      description: Name of the specific scenario this data is associated with
+
+    - name: scenario_variant
+      type: string
+      title: Scenario Variant
+      description: Variant of the scenario, if applicable
+
+    - name: unit
+      type: string
+      title: Unit
+      description: Unit
+      constraints:
+        required: true
+        maxLength: 16
+
+    - name: year
+      type: integer
+      title: Year
+      description: Year of the data
+      constraints:
+        required: true
+        minimum: 1900
+        maximum: 2100
+
+    - name: country
+      type: string
+      title: Country Code
+      description: ISO 3166-1 alpha-2 country code
+
+    - name: value
+      type: number
+      title: Population
+      description: Population in the specified unit
+      constraints:
+        required: true
+        minimum: 0

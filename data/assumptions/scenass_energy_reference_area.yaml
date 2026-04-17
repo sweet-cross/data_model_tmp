@@ -1,0 +1,130 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: scenass_energy_reference_area
+title: Energy Reference Area
+description: |
+  Energy reference area by sector, year, building type and age
+  used as assumptions for scenario runs.
+
+# ----------------------------------------------------------------------------
+#                ----- Frictionless Table Schema -----
+# ----------------------------------------------------------------------------
+tableschema:
+
+  # ----------------------------------------------------------------------------
+  #                SEMANTIC FIELD DESCRIPTION
+  # ----------------------------------------------------------------------------
+  fieldDescriptors:
+    - field: value
+      type: value
+    - field: year
+      type: time
+      frequency: yearly
+    - field: country
+      type: location
+      locationType: country
+
+  # ----------------------------------------------------------------------------
+  #                        FOREIGN KEY CONSTRAINTS
+  # ----------------------------------------------------------------------------
+  # A list of field names that are jointly unique. As it is an assumption table,
+  # it include the scenario information. E.g.
+  primaryKey:
+    [
+      scenario_group,
+      scenario_name,
+      scenario_variant,
+      country,
+      endusesector,
+      building,
+      year,
+      age,
+    ]
+
+  # put the reference to cited fields (country left as example)
+  # see: https://specs.frictionlessdata.io/table-schema/#foreign-keys
+  foreignKeys:
+    - fields: country
+      reference:
+        resource: dim_iso_region
+        fields: id
+    - fields: [scenario_group, scenario_name, scenario_variant]
+      reference:
+        resource: dim_scenario
+        fields: [group, name, variant]
+    - fields: endusesector
+      reference:
+        resource: dim_endusesector
+        fields: id
+    - fields: building
+      reference:
+        resource: dim_building
+        fields: id
+
+  # ----------------------------------------------------------------------------
+  #                  FRICTIONLESS FIELDS/COLUMNS
+  # ----------------------------------------------------------------------------
+  fields:
+    - name: scenario_group
+      type: string
+      title: Scenario Group
+      description: Name of the scenario group this data is associated with
+
+    - name: scenario_name
+      type: string
+      title: Scenario Name
+      description: Name of the specific scenario this data is associated with
+
+    - name: scenario_variant
+      type: string
+      title: Scenario Variant
+      description: Variant of the scenario, if applicable
+
+    - name: unit
+      type: string
+      title: Unit
+      description: Unit
+      constraints:
+        required: true
+        maxLength: 16
+
+    - name: year
+      type: integer
+      title: Year
+      description: Year of the data
+      constraints:
+        required: true
+        minimum: 1900
+        maximum: 2100
+
+    - name: country
+      type: string
+      title: Country Code
+      description: ISO 3166-1 alpha-2 country code
+      constraints:
+        required: true
+        maxLength: 8
+
+    - name: endusesector
+      type: string
+      title: End Use Sector
+      description: End use sector for the data
+
+    - name: building
+      type: string
+      title: Building Type
+      description: Type of building for the data
+
+    - name: age
+      type: string
+      title: Age of Building
+      description: Age category of the building
+
+    - name: value
+      type: number
+      title: Value
+      description: Value
+      constraints:
+        required: true
+        minimum: 0

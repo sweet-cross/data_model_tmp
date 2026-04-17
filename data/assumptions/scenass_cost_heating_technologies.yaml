@@ -1,0 +1,101 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: scenass_cost_heating_technologies
+title: Investment cost of heating technologies
+description: >
+  Investment cost data for heating technologies
+  used as assumptions for scenario runs.
+
+# ----------------------------------------------------------------------------
+#                ----- Frictionless Table Schema -----
+# ----------------------------------------------------------------------------
+tableschema:
+  # ----------------------------------------------------------------------------
+  #                SEMANTIC FIELD DESCRIPTION
+  # ----------------------------------------------------------------------------
+  fieldDescriptors:
+    - field: value
+      type: value
+    - field: year
+      type: time
+      frequency: yearly
+
+  # ----------------------------------------------------------------------------
+  #                        FOREIGN KEY CONSTRAINTS
+  # ----------------------------------------------------------------------------
+  # A list of field names that are jointly unique. As it is an assumption table,
+  # it include the scenario information. E.g.
+  primaryKey:
+    [scenario_group, scenario_name, scenario_variant, technology, year, size]
+
+  foreignKeys:
+    - fields: technology
+      reference:
+        resource: dim_tech_heat
+        fields: id
+    - fields: [scenario_group, scenario_name, scenario_variant]
+      reference:
+        resource: dim_scenario
+        fields: [group, name, variant]
+
+  # ----------------------------------------------------------------------------
+  #                  FRICTIONLESS FIELDS/COLUMNS
+  # ----------------------------------------------------------------------------
+  fields:
+    - name: scenario_group
+      type: string
+      title: Scenario Group
+      description: Name of the scenario group this data is associated with
+
+    - name: scenario_name
+      type: string
+      title: Scenario Name
+      description: Name of the specific scenario this data is associated with
+
+    - name: scenario_variant
+      type: string
+      title: Scenario Variant
+      description: Variant of the scenario, if applicable
+
+    # enter the fields of the table (left year and country_id as example)
+    - name: technology
+      type: string
+      title: Heating Technology
+      description: Heating Technology used
+      constraints:
+        required: true
+
+    - name: size
+      type: string
+      title: Size
+      description: Size of installed capacity
+      constraints:
+        required: true
+        maxLength: 16
+
+    - name: unit
+      type: string
+      title: Unit
+      description: Unit
+      constraints:
+        required: true
+        maxLength: 16
+
+    - name: year
+      type: integer
+      title: Year
+      description: Year in which the installation takes place
+      constraints:
+        required: true
+        minimum: 1900
+        maximum: 2100
+
+    - name: value
+      type: number
+      title: Heating Technology Investment Cost
+      description: |
+        Heating technology investment cost for the year
+      constraints:
+        required: true
+        minimum: 0

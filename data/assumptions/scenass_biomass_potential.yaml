@@ -1,0 +1,109 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: scenass_biomass_potential
+title: Biomass Potential
+description: |
+  Biomass potentials by biomass type used as assumptions for scenario runs.
+
+# ----------------------------------------------------------------------------
+#                ----- Frictionless Table Schema -----
+# ----------------------------------------------------------------------------
+tableschema:
+
+  # ----------------------------------------------------------------------------
+  #                SEMANTIC FIELD DESCRIPTION
+  # ----------------------------------------------------------------------------
+  fieldDescriptors:
+    - field: value
+      type: value
+    - field: year
+      type: time
+      frequency: yearly
+    - field: country
+      type: location
+      locationType: country
+
+  # ----------------------------------------------------------------------------
+  #                        FOREIGN KEY CONSTRAINTS
+  # ----------------------------------------------------------------------------
+  # A list of field names that are jointly unique. As it is an assumption table,
+  # it include the scenario information. E.g.
+  primaryKey:
+    [scenario_group, scenario_name, scenario_variant, resource, year, country]
+
+  foreignKeys:
+    - fields: country
+      reference:
+        resource: dim_iso_region
+        fields: id
+    - fields: resource
+      reference:
+        resource: dim_resource
+        fields: id
+    - fields: [scenario_group, scenario_name, scenario_variant]
+      reference:
+        resource: dim_scenario
+        fields: [group, name, variant]
+
+  # ----------------------------------------------------------------------------
+  #                  FRICTIONLESS FIELDS/COLUMNS
+  # ----------------------------------------------------------------------------
+  fields:
+    - name: scenario_group
+      type: string
+      title: Scenario Group
+      description: Name of the scenario group this data is associated with
+
+    - name: scenario_name
+      type: string
+      title: Scenario Name
+      description: Name of the specific scenario this data is associated with
+
+    - name: scenario_variant
+      type: string
+      title: Scenario Variant
+      description: Variant of the scenario, if applicable
+
+    # enter the fields of the table (left year and country_id as example)
+    - name: resource
+      type: string
+      title: Resource
+      description: Biomass Resource
+      constraints:
+        required: true
+
+    - name: country
+      type: string
+      title: Country Code
+      description: ISO 3166-1 alpha-2 country code
+      constraints:
+        required: true
+        maxLength: 8
+
+    - name: unit
+      type: string
+      title: Unit
+      description: Unit
+      constraints:
+        required: true
+        maxLength: 16
+
+    - name: year
+      type: integer
+      title: Year
+      description: Year in which the biomass potential can be realized.
+      constraints:
+        required: true
+        minimum: 1900
+        maximum: 2100
+
+    - name: value
+      type: number
+      title: Biomass Potential Value
+      description: |
+        The potential biomass value for the specified resource, year, and country.
+        This value is used in scenario analyses to assess biomass potential.
+      constraints:
+        required: true
+        minimum: 0
