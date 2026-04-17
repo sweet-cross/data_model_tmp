@@ -41,8 +41,10 @@ plugins:
 
 hooks:
   - docs/hooks/dimensions.py
+  - docs/hooks/templates.py
 
 markdown_extensions:
+  - admonition
   - attr_list
   - md_in_html
   - pymdownx.details
@@ -63,3 +65,5 @@ nav:
       # by docs/hooks/dimensions.py
   - Result Submission:
       - Overview: result_submission/index.md
+      - Templates for result submission: result_submission/upload_templates.md
+      - Fields: result_submission/fields.md

@@ -5,7 +5,7 @@ This is the documentation for the CROSS data mode and instructions for uploading
 
 
 - [Dimension definition](dimensions/index.md)
-- - [Uploading data to CROSSHub](/result_submission/index.md)
+- [Uploading data to CROSSHub](result_submission/index.md)
 <!-- - [Compulsory fields for uploading data](/data-model/docs/fields/)
 - [Variables definition](/data-model/docs/variables/)
 
