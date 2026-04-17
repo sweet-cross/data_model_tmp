@@ -8,14 +8,14 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-# create_docs/ lives at <project_root>/create_docs/, this file at
-# <project_root>/docs/macros/dimensions.py — neither parent is on sys.path
-# when mkdocs loads the macros module, so add the project root explicitly.
+# registry.py lives at <project_root>/registry.py; this file at
+# <project_root>/docs/macros/dimensions.py. The project root is not on sys.path
+# when mkdocs loads the macros module, so add it explicitly.
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from create_docs.registry import (  # noqa: E402
+from registry import (  # noqa: E402
     DIMENSIONS_XLSX,
     DIMENSIONS_YAML_DIR,
     dimension_registry,
@@ -72,6 +72,14 @@ def _clean(value) -> str:
     return "" if text.lower() == "nan" else text
 
 
+def contract_type_label(meta: dict) -> str:
+    """Return `contract_type` from a metadata dict, defaulting to 'General'.
+
+    Centralised so future macros (beyond dimensions) can reuse the same fallback.
+    """
+    return _clean(meta.get("contract_type")) or "General"
+
+
 def _render_header(node: dict) -> str:
     """Render the `id label` header row, escaping for HTML. Drops the label if absent."""
     node_id = _clean(node["id"])
@@ -124,50 +132,89 @@ def render_dimension(name: str) -> str:
     """Macro: return the full HTML block for a single dimension page (downloads + tree).
 
     Fails the build with a clear message if the page references a dimension not
-    listed in `create_docs.registry.dimension_registry` — the nav is the source
-    of truth for which dimensions are documented, but the registry must have a
-    matching entry to resolve the YAML and Excel sheet.
+    listed in `registry.dimension_registry` — the nav is the source of truth
+    for which dimensions are documented, but the registry must have a matching
+    entry to resolve the YAML and Excel sheet. `index_only` dimensions have no
+    page by design and should never reach this macro; if they do, the hook
+    configuration has drifted from the registry.
     """
     if name not in dimension_registry:
         raise KeyError(
             f'Dimension "{name}" is referenced from a docs page but is not '
-            f'in create_docs/registry.py:dimension_registry. '
+            f'in registry.py:dimension_registry. '
             f'Add a DimensionRegistryItem for it.'
         )
     item = dimension_registry[name]
+    if item.index_only:
+        raise ValueError(
+            f'Dimension "{name}" is marked index_only in the registry; '
+            f'no per-dimension page should be generated for it.'
+        )
     meta = _load_yaml(item.contract_file)
     df = _load_sheet(item.sheet_name)
     roots, children_map = _build_tree(df)
+    contract_name = _clean(meta.get("name")) or name
+    ctype = contract_type_label(meta)
     desc = _clean(meta.get("description"))
-    desc_html = f'<p class="dim-page-desc">{html.escape(desc)}</p>' if desc else ""
+    meta_rows = [
+        ('Contract Name', f'<code>{html.escape(contract_name)}</code>'),
+        ('Contract Type', html.escape(ctype)),
+    ]
+    if desc:
+        meta_rows.append(('Description', html.escape(desc)))
+    meta_html = '<dl class="dim-meta">' + "".join(
+        f'<dt>{label}</dt><dd>{value}</dd>' for label, value in meta_rows
+    ) + '</dl>'
     tree_html = "".join(_render_node(r, children_map, 0) for r in roots)
     return (
         '<div class="dim-page" markdown="0">'
         f'{_render_downloads(name)}'
-        f'{desc_html}'
+        f'{meta_html}'
         f'<div class="dim-tree">{tree_html}</div>'
         '</div>'
     )
 
 
 def render_dimension_index() -> str:
-    """Macro: return the HTML list of all registered dimensions for the overview page."""
-    items = []
+    """Macro: return an HTML table of all registered dimensions for the overview page.
+
+    The table is marked `sortable` so the vendored tablesort.js wires click-to-sort
+    on the header row. The first cell holds a link; a CSS overlay on that link
+    stretches across the whole row so clicking anywhere on the row navigates.
+    """
+    rows = []
     for name, reg in dimension_registry.items():
         meta = _load_yaml(reg.contract_file)
         title = _clean(meta.get("title")) or name
         desc = _clean(meta.get("description"))
-        desc_html = f'<p>{html.escape(desc)}</p>' if desc else ""
-        items.append(
-            '<li class="dim-index-item">'
-            f'<a href="{name}/"><strong>{html.escape(title)}</strong> '
-            f'<code>{html.escape(name)}</code></a>'
-            f'{desc_html}'
-            '</li>'
+        name_html = html.escape(name)
+        if reg.index_only:
+            # No per-dimension page exists — render the name as plain code and
+            # skip the row-overlay styling (class difference suppresses it).
+            name_cell = f'<code>{name_html}</code>'
+            row_class = "dim-index-row dim-index-row-static"
+        else:
+            name_cell = f'<a href="{name_html}/"><code>{name_html}</code></a>'
+            row_class = "dim-index-row"
+        rows.append(
+            f'<tr class="{row_class}">'
+            f'<td class="dim-index-name">{name_cell}</td>'
+            f'<td>{html.escape(title)}</td>'
+            f'<td>{html.escape(desc)}</td>'
+            '</tr>'
         )
-    if not items:
+    if not rows:
         return '<p><em>No dimensions registered.</em></p>'
-    return f'<ul class="dim-index">{"".join(items)}</ul>'
+    return (
+        '<div class="dim-index" markdown="0">'
+        '<table class="dim-index-table sortable">'
+        '<thead><tr>'
+        '<th>Name</th><th>Title</th><th>Description</th>'
+        '</tr></thead>'
+        f'<tbody>{"".join(rows)}</tbody>'
+        '</table>'
+        '</div>'
+    )
 
 
 def define_env(env):

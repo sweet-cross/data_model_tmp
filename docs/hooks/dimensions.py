@@ -1,4 +1,4 @@
-"""mkdocs hook: drive dimension docs from `create_docs.registry`.
+"""mkdocs hook: drive dimension docs from the root-level `registry` module.
 
 Three lifecycle steps:
 
@@ -9,8 +9,8 @@ Three lifecycle steps:
   * `on_post_build` — write the per-dimension CSV downloads and the shared
                        full-workbook xlsx into <site>/downloads/.
 
-The registry is the single source of truth: edit
-`create_docs/registry.py` and rebuild — nav, pages, and downloads update.
+The registry is the single source of truth: edit `registry.py` at the project
+root and rebuild — nav, pages, and downloads update.
 """
 
 import shutil
@@ -26,7 +26,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from create_docs.registry import (  # noqa: E402
+from registry import (  # noqa: E402
     DIMENSIONS_XLSX,
     DIMENSIONS_YAML_DIR,
     dimension_registry,
@@ -59,7 +59,9 @@ def on_config(config):
     for entry in nav:
         if isinstance(entry, dict) and DIM_SECTION_TITLE in entry:
             children = entry[DIM_SECTION_TITLE] or []
-            for name in dimension_registry:
+            for name, item in dimension_registry.items():
+                if item.index_only:
+                    continue
                 children.append({name: f"dimensions/{name}.md"})
             entry[DIM_SECTION_TITLE] = children
             break
@@ -67,8 +69,14 @@ def on_config(config):
 
 
 def on_files(files, config):
-    """Inject one virtual stub markdown file per registered dimension."""
+    """Inject one virtual stub markdown file per renderable dimension.
+
+    `index_only` dimensions are intentionally skipped — they appear in the
+    overview table as plain rows with no link target.
+    """
     for name, item in dimension_registry.items():
+        if item.index_only:
+            continue
         title = _title_for(item.contract_file, name)
         files.append(
             File.generated(

@@ -3,10 +3,12 @@
 
 This is the documentation for the CROSS data mode and instructions for uploading data to CROSSHub, including:
 
-**TODO** Update links 
+
+- [Dimension definition](dimensions/index.md)
+- - [Uploading data to CROSSHub](/result_submission/index.md)
 <!-- - [Compulsory fields for uploading data](/data-model/docs/fields/)
 - [Variables definition](/data-model/docs/variables/)
-- [Sets definition](/data-model/docs/sets/)
+
 - [Registered scenarios](/data-model/docs/scenarios/)
 - [Registered models](/data-model/docs/models/)
 - [Uploading data to CROSSHub](/data-model/docs/upload/)    -->

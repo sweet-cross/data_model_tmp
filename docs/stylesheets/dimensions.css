@@ -2,9 +2,35 @@
 .dim-page {
   margin-top: 0.5rem;
 }
-.dim-page-desc {
-  color: var(--md-default-fg-color--light);
+/* Contract metadata block (Contract Name / Type / Description). Two-column
+   grid with labels left-aligned; Material's `.md-typeset dl` adds vertical
+   margins and indentation we don't want, hence the namespaced overrides. */
+.md-typeset .dim-meta,
+.dim-meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 0.9rem;
+  row-gap: 0.3rem;
   margin: 0 0 1.25rem;
+  font-size: 0.95em;
+}
+.md-typeset .dim-meta dt,
+.dim-meta dt {
+  margin: 0;
+  color: var(--md-default-fg-color--light);
+  font-weight: 600;
+}
+.md-typeset .dim-meta dd,
+.dim-meta dd {
+  margin: 0;
+  color: var(--md-default-fg-color);
+}
+.md-typeset .dim-meta dd code,
+.dim-meta dd code {
+  background: transparent;
+  padding: 0;
+  font-size: 0.9em;
+  color: var(--md-default-fg-color);
 }
 .dim-tree {
   display: flex;
@@ -144,35 +170,83 @@
   color: var(--md-primary-bg-color);
 }
 
-/* Index list */
-.dim-index {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+/* Index table. Namespaced under .md-typeset to outrank Material's default
+   `.md-typeset table` styling. Rows are fully clickable via a CSS overlay:
+   the first-cell link is absolutely-positioned to cover the whole row, and
+   the row itself is the positioning context (`position: relative`). */
+.md-typeset .dim-index-table,
+.dim-index-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  margin: 0.5rem 0 0;
+  display: table;
 }
-.dim-index-item {
-  border: 1px solid var(--md-default-fg-color--lightest);
-  border-radius: 8px;
-  padding: 0.7rem 0.9rem;
+.md-typeset .dim-index-table th,
+.md-typeset .dim-index-table td,
+.dim-index-table th,
+.dim-index-table td {
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  vertical-align: top;
+  border: none;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+.md-typeset .dim-index-table thead th,
+.dim-index-table thead th {
+  font-weight: 600;
+  color: var(--md-default-fg-color);
+  border-bottom: 2px solid var(--md-default-fg-color--lighter);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+/* Sort indicators — neutral arrows by default, primary colour when active. */
+.md-typeset .dim-index-table thead th::after,
+.dim-index-table thead th::after {
+  content: " \25B4\25BE";
+  color: var(--md-default-fg-color--lighter);
+  font-size: 0.8em;
+  margin-left: 0.25rem;
+}
+.md-typeset .dim-index-table thead th[aria-sort="ascending"]::after,
+.dim-index-table thead th[aria-sort="ascending"]::after {
+  content: " \25B4";
+  color: var(--md-primary-fg-color);
+}
+.md-typeset .dim-index-table thead th[aria-sort="descending"]::after,
+.dim-index-table thead th[aria-sort="descending"]::after {
+  content: " \25BE";
+  color: var(--md-primary-fg-color);
+}
+/* Row hover + full-row-clickable overlay. */
+.md-typeset .dim-index-table tbody tr.dim-index-row,
+.dim-index-table tbody tr.dim-index-row {
+  position: relative;
   transition: background 0.12s ease;
 }
-.dim-index-item:hover {
+.md-typeset .dim-index-table tbody tr.dim-index-row:not(.dim-index-row-static):hover,
+.dim-index-table tbody tr.dim-index-row:not(.dim-index-row-static):hover {
   background: var(--md-default-fg-color--lightest);
 }
-.dim-index-item a {
+.md-typeset .dim-index-table tbody tr.dim-index-row-static,
+.dim-index-table tbody tr.dim-index-row-static {
+  color: var(--md-default-fg-color--light);
+}
+.md-typeset .dim-index-table tbody .dim-index-name a,
+.dim-index-table tbody .dim-index-name a {
   text-decoration: none;
-  color: var(--md-default-fg-color);
 }
-.dim-index-item code {
-  font-size: 0.8em;
-  color: var(--md-default-fg-color--light);
+.md-typeset .dim-index-table tbody .dim-index-name a code,
+.dim-index-table tbody .dim-index-name a code {
+  color: var(--md-primary-fg-color);
   background: transparent;
-  margin-left: 0.4rem;
+  font-weight: 600;
+  padding: 0;
 }
-.dim-index-item p {
-  margin: 0.3rem 0 0;
-  color: var(--md-default-fg-color--light);
-  font-size: 0.9em;
+.md-typeset .dim-index-table tbody .dim-index-name a::after,
+.dim-index-table tbody .dim-index-name a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
 }

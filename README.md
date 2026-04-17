@@ -12,7 +12,7 @@ uv run mkdocs build --strict  # production build
 
 ## Adding a dimension to the docs
 
-`create_docs/registry.py` is the **single source of truth** for which dimensions are documented. Adding to it is enough — the build hook injects the page, the nav entry, and the download artefacts at build time. `mkdocs.yml` does not need to change.
+`registry.py` is the **single source of truth** for which dimensions are documented. Adding to it is enough — the build hook injects the page, the nav entry, and the download artefacts at build time. `mkdocs.yml` does not need to change.
 
 ### Steps
 
@@ -34,13 +34,15 @@ uv run mkdocs build --strict  # production build
     | `label`       | string         | optional, shown next to the id           |
     | `description` | string         | optional, shown as italic line below     |
 
-3. **Registry.** Add an entry in [create_docs/registry.py](create_docs/registry.py):
+3. **Registry.** Add an entry in [registry.py](registry.py):
     ```python
     "dim_<name>": DimensionRegistryItem(
         contract_file="dim_<name>",
         sheet_name="dim_<name>",
     ),
     ```
+
+    Pass `index_only=True` for dimensions that are too large to render as a card tree (e.g. `dim_iso_region`). Those appear as a plain row in the overview table — no nav entry, no per-dimension page. The CSV is still written to `site/downloads/dimensions/` so the data stays downloadable via the shared Excel export on any rendered dimension page.
 
 4. **Build.** `uv run mkdocs serve` (or `build --strict`). The dimension appears in the top nav, on the overview index, and exposes a per-dimension CSV plus the shared "Download all dimensions (xlsx)" link.
 
@@ -68,4 +70,4 @@ nav:
 - [docs/macros/dimensions.py](docs/macros/dimensions.py) — mkdocs-macros module. Reads YAML metadata and the matching Excel sheet at build time, builds the parent → children tree, and emits nested `<details>` cards. Exposes the macros `render_dimension(name)` and `render_dimension_index()`. Raises a clear `KeyError` (which fails the build) if a page references a dimension missing from the registry.
 - [docs/hooks/dimensions.py](docs/hooks/dimensions.py) — registry-driven nav, virtual stub pages, and download artefacts (see above).
 - [docs/stylesheets/dimensions.css](docs/stylesheets/dimensions.css) — card / chevron / button styling, dark-mode safe via Material's CSS variables.
-- [create_docs/registry.py](create_docs/registry.py) — the registry itself plus the `DIMENSIONS_YAML_DIR` and `DIMENSIONS_XLSX` path constants used by the macro and hook.
+- [registry.py](registry.py) — the registry itself plus the `DIMENSIONS_YAML_DIR` and `DIMENSIONS_XLSX` path constants used by the macro and hook.
