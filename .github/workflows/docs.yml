@@ -1,0 +1,57 @@
+name: Build and deploy docs
+
+# Manual-only for now. To add auto-deploy on push later, add:
+#   push:
+#     branches: [main]
+on:
+  workflow_dispatch:
+
+# Required for the deploy-pages action to mint an OIDC token and publish to
+# the github-pages environment.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# If a second run is triggered while one is in flight, wait for the current
+# deploy to finish instead of cancelling it — cancelling mid-deploy can leave
+# Pages in a partially updated state.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Sync dependencies
+        run: uv sync --locked
+
+      - name: Build site
+        run: uv run mkdocs build --strict
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
