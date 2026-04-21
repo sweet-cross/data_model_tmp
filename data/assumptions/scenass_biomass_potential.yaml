@@ -6,6 +6,7 @@ title: Biomass Potential
 description: |
   Biomass potentials by biomass type used as assumptions for scenario runs.
 
+contract_type: ValueVariable
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

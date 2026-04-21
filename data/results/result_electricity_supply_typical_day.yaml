@@ -1,10 +1,11 @@
 # ----------------------------------------------------------------------------
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
-name: scenass_aviation_fuel_demand
-title: Aviation Fuel Demand
-description: |
-  Aviation fuel demand data used as assumptions for scenario runs.
+name: result_elec_supply_typical_day
+title: Result submission - Electricity supply
+description: >
+  Electricity supply as submitted from scenario runs for a
+  typical day
 
 contract_type: ValueVariable
 # ----------------------------------------------------------------------------
@@ -15,15 +16,6 @@ tableschema:
   # ----------------------------------------------------------------------------
   #                SEMANTIC FIELD DESCRIPTION
   # ----------------------------------------------------------------------------
-  fieldDescriptors:
-    - field: value
-      type: value
-    - field: year
-      type: time
-      frequency: yearly
-    - field: country
-      type: location
-      locationType: country
 
   # ----------------------------------------------------------------------------
   #                        FOREIGN KEY CONSTRAINTS
@@ -31,46 +23,74 @@ tableschema:
   # A list of field names that are jointly unique. As it is an assumption table,
   # it include the scenario information. E.g.
   primaryKey:
-    [scenario_group, scenario_name, scenario_variant, fuel, year, country]
+    [
+      model,
+      scenario_group,
+      scenario_name,
+      scenario_variant,
+      country,
+      timestamp,
+      unit,
+      technology,
+    ]
 
   foreignKeys:
     - fields: country
       reference:
         resource: dim_iso_region
         fields: id
-    - fields: fuel
+
+    - fields: model
       reference:
-        resource: dim_fuel
+        resource: dim_model
         fields: id
+
     - fields: [scenario_group, scenario_name, scenario_variant]
       reference:
         resource: dim_scenario
         fields: [group, name, variant]
 
+    - fields: technology
+      reference:
+        resource: dim_tech_generation
+        fields: id
+
   # ----------------------------------------------------------------------------
   #                  FRICTIONLESS FIELDS/COLUMNS
   # ----------------------------------------------------------------------------
   fields:
+    - name: model
+      type: string
+      title: Model
+      description: Name of the model producing the data
+      constraints:
+        required: true
+
     - name: scenario_group
       type: string
       title: Scenario Group
       description: Name of the scenario group this data is associated with
+      constraints:
+        required: true
 
     - name: scenario_name
       type: string
       title: Scenario Name
       description: Name of the specific scenario this data is associated with
+      constraints:
+        required: true
 
     - name: scenario_variant
       type: string
       title: Scenario Variant
       description: Variant of the scenario, if applicable
+      constraints:
+        required: true
 
-    # enter the fields of the table (left year and country_id as example)
-    - name: fuel
+    - name: technology
       type: string
-      title: Fuel
-      description: Aviation Fuel Type
+      title: Technology
+      description: Name of the generation technology
       constraints:
         required: true
 
@@ -82,29 +102,27 @@ tableschema:
         required: true
         maxLength: 8
 
+    - name: timestamp
+      type: datetime
+      title: Timestamp
+      description: The timestamp
+      constraints:
+        required: true
+
     - name: unit
       type: string
       title: Unit
       description: Unit
       constraints:
         required: true
-        maxLength: 16
-
-    - name: year
-      type: integer
-      title: Year
-      description: Year in which the biomass potential can be realized.
-      constraints:
-        required: true
-        minimum: 1900
-        maximum: 2100
+        enum: ["GW"]
 
     - name: value
       type: number
-      title: Biomass Potential Value
+      title: Value
       description: |
-        The potential biomass value for the specified resource, year, and country.
-        This value is used in scenario analyses to assess biomass potential.
+        The value associated with the variable for the given scenario, model,
       constraints:
         required: true
         minimum: 0
+        maximum: 1000

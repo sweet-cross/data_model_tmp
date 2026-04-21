@@ -1,0 +1,202 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: result_electricity_consumption_monthly
+title: Result submission for the scenario runs - Monthly Electricity consumption
+description: Monthly electricity consumption as submitted
+contract_type: ValueVariable
+
+# ----------------------------------------------------------------------------
+#                ----- Frictionless Table Schema -----
+# ----------------------------------------------------------------------------
+
+tableschema:
+  # ----------------------------------------------------------------------------
+  #                SEMANTIC FIELD DESCRIPTION
+  # ----------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------------
+  #                        FOREIGN KEY CONSTRAINTS
+  # ----------------------------------------------------------------------------
+  # A list of field names that are jointly unique. As it is an assumption table,
+  # it include the scenario information. E.g.
+  primaryKey:
+    [
+      model,
+      scenario_group,
+      scenario_name,
+      scenario_variant,
+      country,
+      month,
+      unit,
+      sector,
+    ]
+
+  foreignKeys:
+    - fields: country
+      reference:
+        resource: dim_iso_region
+        fields: id
+
+    - fields: model
+      reference:
+        resource: dim_model
+        fields: id
+
+    - fields: [scenario_group, scenario_name, scenario_variant]
+      reference:
+        resource: dim_scenario
+        fields: [group, name, variant]
+
+    - fields: sector
+      reference:
+        resource: dim_use_elec
+        fields: id
+
+  # ----------------------------------------------------------------------------
+  #                  FRICTIONLESS FIELDS/COLUMNS
+  # ----------------------------------------------------------------------------
+  fields:
+    - name: model
+      type: string
+      title: Model
+      description: Name of the model producing the data
+      constraints:
+        required: true
+
+    - name: scenario_group
+      type: string
+      title: Scenario Group
+      description: Name of the scenario group this data is associated with
+      constraints:
+        required: true
+
+    - name: scenario_name
+      type: string
+      title: Scenario Name
+      description: Name of the specific scenario this data is associated with
+      constraints:
+        required: true
+
+    - name: scenario_variant
+      type: string
+      title: Scenario Variant
+      description: Variant of the scenario, if applicable
+      constraints:
+        required: true
+
+    # todo do we need restrictions here? Done
+    - name: sector
+      type: string
+      title: End use of the electricity
+      description: Name of the end-use
+      constraints:
+        required: true
+
+    - name: country
+      type: string
+      title: Country Code
+      description: ISO 3166-1 alpha-2 country code
+      constraints:
+        required: true
+        maxLength: 8
+
+    - name: month
+      type: string
+      title: Month
+      description: The month the data refers to example format "01.2050" for January 2025
+      constraints:
+        required: true
+        enum:
+          [
+            "01.2025",
+            "02.2025",
+            "03.2025",
+            "04.2025",
+            "05.2025",
+            "06.2025",
+            "07.2025",
+            "08.2025",
+            "09.2025",
+            "10.2025",
+            "11.2025",
+            "12.2025",
+            "01.2030",
+            "02.2030",
+            "03.2030",
+            "04.2030",
+            "05.2030",
+            "06.2030",
+            "07.2030",
+            "08.2030",
+            "09.2030",
+            "10.2030",
+            "11.2030",
+            "12.2030",
+            "01.2035",
+            "02.2035",
+            "03.2035",
+            "04.2035",
+            "05.2035",
+            "06.2035",
+            "07.2035",
+            "08.2035",
+            "09.2035",
+            "10.2035",
+            "11.2035",
+            "12.2035",
+            "01.2040",
+            "02.2040",
+            "03.2040",
+            "04.2040",
+            "05.2040",
+            "06.2040",
+            "07.2040",
+            "08.2040",
+            "09.2040",
+            "10.2040",
+            "11.2040",
+            "12.2040",
+            "01.2045",
+            "02.2045",
+            "03.2045",
+            "04.2045",
+            "05.2045",
+            "06.2045",
+            "07.2045",
+            "08.2045",
+            "09.2045",
+            "10.2045",
+            "11.2045",
+            "12.2045",
+            "01.2050",
+            "02.2050",
+            "03.2050",
+            "04.2050",
+            "05.2050",
+            "06.2050",
+            "07.2050",
+            "08.2050",
+            "09.2050",
+            "10.2050",
+            "11.2050",
+            "12.2050",
+          ]
+
+    - name: unit
+      type: string
+      title: Unit
+      description: Unit
+      constraints:
+        required: true
+        enum: ["TWh"]
+
+    - name: value
+      type: number
+      title: Value
+      description: |
+        The value associated with the variable for the given scenario, model,
+      constraints:
+        required: true
+        minimum: 0
+        maximum: 1000

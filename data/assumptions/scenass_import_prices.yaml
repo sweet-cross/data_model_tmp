@@ -6,6 +6,7 @@ title: Fuel import price
 description: |
   Import prices by fuel type, year, and country used as assumptions for scenario runs.
 
+contract_type: ValueVariable
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

@@ -7,6 +7,7 @@ description: |
   Net transfer capacities (NTC) based on the ENTSO-E TYNDP
   data. The early years are based on the historical and reference grid, the remaining
   differentiated by the respective TYNDP scenario.
+contract_type: ValueVariable
 
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
@@ -31,7 +32,7 @@ tableschema:
   # ----------------------------------------------------------------------------
   #                        FOREIGN KEY CONSTRAINTS
   # ----------------------------------------------------------------------------
-  primaryKey: [tyndp_scenario, from, to, year]
+  primaryKey: [ tyndp_scenario, from, to, year ]
 
   foreignKeys:
     - fields: from

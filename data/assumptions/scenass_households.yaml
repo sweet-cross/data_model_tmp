@@ -6,6 +6,7 @@ title: Number of Households
 description: |
   Household data used as assumptions for scenario runs.
 
+contract_type: ValueVariable
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 name: dim_scenario
 title: Scenario
 description: List of available scenarios
+contract_type: FlexibleDimension
 
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
@@ -13,7 +14,7 @@ tableschema:
   # ----------------------------------------------------------------------------
   #                  FRICTIONLESS FIELDS/COLUMNS
   # ----------------------------------------------------------------------------
-  primaryKey: [group, name, variant]
+  primaryKey: [ group, name, variant ]
 
   fields:
     - name: name
@@ -41,6 +42,6 @@ tableschema:
       constraints:
         maxLength: 255
 
-    - name: explanation
+    - name: description
       type: string
       description: Explanation and documentation of a single element
