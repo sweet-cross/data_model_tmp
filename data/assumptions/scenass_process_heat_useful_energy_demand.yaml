@@ -7,6 +7,7 @@ description: |
   Useful energy demand for process heat by end-use sector used as assumptions
   for scenario runs.
 
+contract_type: ValueVariable
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 name: dim_model
 title: Model
 description: List of available models
+contract_type: FlexibleDimension
 
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----

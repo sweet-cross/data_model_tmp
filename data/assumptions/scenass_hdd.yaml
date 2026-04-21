@@ -6,6 +6,7 @@ title: Heating Degree Days (HDD)
 description: |
   Heating Degree Days (HDD) by climate scenario used as assumptions for scenario runs.
 
+contract_type: ValueVariable
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

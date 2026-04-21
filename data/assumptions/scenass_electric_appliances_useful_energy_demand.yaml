@@ -7,6 +7,7 @@ description: |
   Electricity demand from electric appliances and motors by end-used sector, year, and
   country used as assumptions for scenario runs.
 
+contract_type: ValueVariable
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------
