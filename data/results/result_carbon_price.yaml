@@ -42,10 +42,10 @@ tableschema:
         resource: dim_model
         fields: id
 
-    - fields: [scenario_group, scenario_name, scenario_variant]
+    - fields: [ scenario_group, scenario_name, scenario_variant ]
       reference:
         resource: dim_scenario
-        fields: [group, name, variant]
+        fields: [ group, name, variant ]
 
   # ----------------------------------------------------------------------------
   #                  FRICTIONLESS FIELDS/COLUMNS
@@ -88,8 +88,8 @@ tableschema:
         maxLength: 8
 
     - name: year
-      type: string
-      title: integer Year
+      type: year
+      title: Year
       description: The year the data refers to
       constraints:
         required: true
@@ -100,7 +100,7 @@ tableschema:
       description: Unit
       constraints:
         required: true
-        enum: ["CHF/tCO2"]
+        enum: [ "CHF/tCO2" ]
 
     - name: value
       type: number
