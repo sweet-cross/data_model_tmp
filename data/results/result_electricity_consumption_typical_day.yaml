@@ -2,7 +2,7 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_elec_cons_typical_day
-title: Result sumission - Electricity consumption
+title: Result submission - Electricity consumption
 description: >
   Electricity consumption as submitted from scenario runs for a
   typical day
