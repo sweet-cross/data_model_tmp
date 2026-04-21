@@ -88,7 +88,7 @@ tableschema:
         maxLength: 8
 
     - name: year
-      type: year
+      type: integer
       title: Year
       description: The year the data refers to
       constraints:
