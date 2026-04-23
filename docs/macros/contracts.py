@@ -380,3 +380,86 @@ def render_fields_table(
         "</table>"
         "</div>"
     )
+
+
+# ---------------------------------------------------------------------------
+# Full-page composition (used by yaml-only contract macros)
+# ---------------------------------------------------------------------------
+
+
+def render_contract_page(
+    name: str,
+    meta: dict,
+    download_url: str,
+    page_depth: int,
+    dim_registry: dict,
+) -> str:
+    """Render the full HTML block for a single yaml-only contract page.
+
+    Composes the primitives — downloads, header, primary key, fields table —
+    into the ``<div class="contract-page" markdown="0">`` wrapper shared by
+    assumption and result pages.
+
+    Args:
+        name: the registry key, used as fallback when the yaml has no
+            ``name`` field of its own.
+        meta: parsed contract yaml (output of :func:`load_contract`).
+        download_url: relative URL to the source yaml download, placed
+            behind the "Download contract (yaml)" pill button.
+        page_depth: directory depth of the calling page below the site root
+            (with ``use_directory_urls: true``), propagated to
+            :func:`render_fields_table` for dimension-link resolution.
+        dim_registry: the ``dimension_registry`` dict from ``registry.py``.
+
+    Returns:
+        HTML string. The outer div carries ``markdown="0"`` so mkdocs does
+        not re-parse the body as markdown.
+    """
+    schema = meta.get("tableschema") or {}
+    fields = schema.get("fields") or []
+    fk_index = foreign_key_index(schema)
+    pk = schema.get("primaryKey") or []
+    if isinstance(pk, str):
+        pk = [pk]
+
+    downloads_html = render_downloads(
+        [(download_url, "Download contract (yaml)")]
+    )
+    header_html = render_contract_header(name, meta)
+    pk_html = render_primary_key(schema)
+    fields_html = render_fields_table(
+        fields, fk_index, dim_registry, page_depth, primary_key=pk,
+    )
+    return (
+        '<div class="contract-page" markdown="0">'
+        f"{downloads_html}"
+        f"{header_html}"
+        f"{pk_html}"
+        f"{fields_html}"
+        "</div>"
+    )
+
+
+def render_contract_overview(registry: dict, yaml_dir: Path) -> str:
+    """Render the sortable overview table for a yaml-only contract registry.
+
+    Reads ``title`` and ``description`` from each registered contract's yaml
+    and delegates to :func:`render_contract_index` with per-entry href
+    ``"<name>/"`` — relative to the overview page that hosts the call.
+
+    Args:
+        registry: mapping of registry key → item with a ``contract_file``
+            attribute (duck-typed; works with
+            :class:`registry.ContractRegistryItem`).
+        yaml_dir: directory holding the ``<contract_file>.yaml`` sources.
+
+    Returns:
+        HTML table, or a placeholder paragraph when the registry is empty.
+    """
+    entries: list[tuple[str, str, str, str | None]] = []
+    for name, item in registry.items():
+        meta = load_contract(str(yaml_dir / f"{item.contract_file}.yaml"))
+        title = str(meta.get("title") or name).strip()
+        desc = str(meta.get("description") or "").strip()
+        entries.append((name, title, desc, f"{name}/"))
+    return render_contract_index(entries)

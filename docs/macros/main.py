@@ -18,9 +18,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import assumptions  # noqa: E402
 import dimensions  # noqa: E402
+import results  # noqa: E402
 
 
 def define_env(env):
     """mkdocs-macros hook: register every contract-type module's macros."""
     dimensions.register(env)
     assumptions.register(env)
+    results.register(env)

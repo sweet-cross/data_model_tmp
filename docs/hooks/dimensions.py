@@ -1,16 +1,11 @@
 """mkdocs hook: drive dimension docs from the root-level `registry` module.
 
-Three lifecycle steps:
+Thin wrapper around :mod:`docs.hooks._yaml_contract_hooks` for the shared
+nav + stub-page plumbing, plus a dimension-specific `on_post_build` that
+emits the workbook and per-dimension CSV downloads.
 
-  * `on_config`     — append one nav entry per registered dimension under
-                       the existing `Dimensions:` section in mkdocs.yml.
-  * `on_files`      — inject one virtual stub markdown page per registered
-                       dimension; the stub just calls `render_dimension(name)`.
-  * `on_post_build` — write the per-dimension CSV downloads and the shared
-                       full-workbook xlsx into <site>/downloads/.
-
-The registry is the single source of truth: edit `registry.py` at the project
-root and rebuild — nav, pages, and downloads update.
+The registry is the single source of truth: edit `registry.py` at the
+project root and rebuild — nav, pages, and downloads update.
 """
 
 import shutil
@@ -18,74 +13,62 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-import yaml
-
-from mkdocs.structure.files import File
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+_HOOKS_DIR = Path(__file__).resolve().parent
+if str(_HOOKS_DIR) not in sys.path:
+    sys.path.insert(0, str(_HOOKS_DIR))
+
+# `SHOW_CONTRACTS_IN_NAV` is the single toggle shared by every contract-type
+# hook in this repo. See docs/hooks/_yaml_contract_hooks.py for the full
+# comment — flip it there, not here.
+from _yaml_contract_hooks import (  # noqa: E402
+    inject_nav_entries,
+    inject_stub_files_and_downloads,
+)
 from registry import (  # noqa: E402
     DIMENSIONS_XLSX,
     DIMENSIONS_YAML_DIR,
     dimension_registry,
 )
 
-DIM_SECTION_TITLE = "Dimensions"
-STUB_TEMPLATE = '# {title}\n\n{{{{ render_dimension("{name}") }}}}\n'
+_SECTION_PATH = ["Dimensions"]
+_PAGE_SUBPATH = "dimensions"
+_MACRO_NAME = "render_dimension"
 
 
-def _title_for(contract_file: str, fallback: str) -> str:
-    """Read the YAML metadata and return its `title`, falling back to the dimension name."""
-    yaml_path = DIMENSIONS_YAML_DIR / f"{contract_file}.yaml"
-    with yaml_path.open("r", encoding="utf-8") as f:
-        meta = yaml.safe_load(f) or {}
-    return (meta.get("title") or fallback).strip()
+def _renderable_registry() -> dict:
+    """Registry restricted to dimensions that get a per-page render.
+
+    `index_only` entries appear in the overview as plain rows with no link
+    target — they are intentionally excluded from nav injection and stub
+    generation.
+    """
+    return {
+        name: item
+        for name, item in dimension_registry.items()
+        if not item.index_only
+    }
 
 
 def on_config(config):
-    """Append one nav entry per registered dimension under the Dimensions section.
-
-    The user keeps a placeholder section in mkdocs.yml::
-
-        nav:
-          - Dimensions:
-              - Overview: dimensions/index.md
-
-    and this hook adds the per-dimension pages from the registry.
-    """
-    nav = config.get("nav") or []
-    for entry in nav:
-        if isinstance(entry, dict) and DIM_SECTION_TITLE in entry:
-            children = entry[DIM_SECTION_TITLE] or []
-            for name, item in dimension_registry.items():
-                if item.index_only:
-                    continue
-                children.append({name: f"dimensions/{name}.md"})
-            entry[DIM_SECTION_TITLE] = children
-            break
-    return config
+    return inject_nav_entries(
+        config, _SECTION_PATH, _renderable_registry(), _PAGE_SUBPATH,
+    )
 
 
 def on_files(files, config):
-    """Inject one virtual stub markdown file per renderable dimension.
-
-    `index_only` dimensions are intentionally skipped — they appear in the
-    overview table as plain rows with no link target.
-    """
-    for name, item in dimension_registry.items():
-        if item.index_only:
-            continue
-        title = _title_for(item.contract_file, name)
-        files.append(
-            File.generated(
-                config,
-                f"dimensions/{name}.md",
-                content=STUB_TEMPLATE.format(title=title, name=name),
-            )
-        )
-    return files
+    return inject_stub_files_and_downloads(
+        files,
+        config,
+        registry=_renderable_registry(),
+        yaml_dir=DIMENSIONS_YAML_DIR,
+        page_subpath=_PAGE_SUBPATH,
+        macro_name=_MACRO_NAME,
+    )
 
 
 def on_post_build(config, **kwargs):
