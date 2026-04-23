@@ -23,6 +23,7 @@ from contracts import (  # noqa: E402
     render_contract_header,
     render_contract_index,
     render_downloads,
+    workbook_dimension_downloads,
 )
 from registry import (  # noqa: E402
     DIMENSIONS_XLSX,
@@ -31,6 +32,12 @@ from registry import (  # noqa: E402
 )
 
 MAX_DEPTH = 3
+
+# Dimension pages live at dimensions/dimensions/<name>/ with
+# use_directory_urls: true — three directory levels below the site root.
+# Path matches ``_PAGE_SUBPATH`` in docs/hooks/dimensions.py; update both
+# together.
+_DIM_PAGE_DEPTH = 3
 
 
 @lru_cache(maxsize=None)
@@ -138,18 +145,15 @@ def render_dimension(name: str) -> str:
     df = _load_sheet(item.sheet_name)
     roots, children_map = _build_tree(df)
     downloads_html = render_downloads(
-        [
-            (f"../../downloads/dimensions/{name}.csv", "Download CSV"),
-            ("../../downloads/dimensions.xlsx", "Download all dimensions (xlsx)"),
-        ]
+        workbook_dimension_downloads(name, _DIM_PAGE_DEPTH)
     )
     header_html = render_contract_header(name, meta)
     tree_html = "".join(_render_node(r, children_map, 0) for r in roots)
     return (
         '<div class="contract-page" markdown="0">'
-        f"{downloads_html}"
         f"{header_html}"
         f'<div class="dim-tree">{tree_html}</div>'
+        f"{downloads_html}"
         "</div>"
     )
 
