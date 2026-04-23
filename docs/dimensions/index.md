@@ -1,5 +1,9 @@
 # Dimensions
 
-Hierarchical reference data used across the CROSS data model. Click a row to open the dimension; click any column header to sort.
+Dimensions are entities that are referenced by other contracts. There are two types
+of dimensions:
 
-{{ render_dimension_index() }}
+1. Dimension: Is the the standard dimension used in CROSS. They enforce a hierarchical
+structure with top-level entries and more refined categories at the sub-levels.
+2. Flexible Dimensions: Are more flexible and custom in the sense that they do not 
+have to have a hierarchical structure and allow for arbitrary field names.

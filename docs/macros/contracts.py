@@ -176,7 +176,7 @@ def render_contract_index(entries: list[tuple[str, str, str, str | None]]) -> st
         '<div class="contract-index" markdown="0">'
         '<table class="contract-index-table sortable">'
         "<thead><tr><th>Name</th><th>Title</th><th>Description</th></tr></thead>"
-        f'<tbody>{"".join(rows)}</tbody>'
+        f"<tbody>{''.join(rows)}</tbody>"
         "</table>"
         "</div>"
     )
@@ -205,8 +205,7 @@ def render_primary_key(table_schema: dict) -> str:
         return ""
     keys_html = ", ".join(f"<code>{html.escape(str(k))}</code>" for k in pk)
     return (
-        '<p class="contract-primary-key">'
-        f"<strong>Primary key:</strong> {keys_html}</p>"
+        f'<p class="contract-primary-key"><strong>Primary key:</strong> {keys_html}</p>'
     )
 
 
@@ -248,11 +247,7 @@ def foreign_key_index(table_schema: dict) -> dict[str, dict]:
             field = fields
         if not field or not resource or resource == SCENARIO_FK_RESOURCE:
             continue
-        target = (
-            target_fields[0]
-            if isinstance(target_fields, list)
-            else target_fields
-        )
+        target = target_fields[0] if isinstance(target_fields, list) else target_fields
         out[str(field)] = {
             "resource": str(resource),
             "target": str(target or ""),
@@ -260,9 +255,7 @@ def foreign_key_index(table_schema: dict) -> dict[str, dict]:
     return out
 
 
-def dimension_page_url(
-    resource: str, dim_registry: dict, depth: int
-) -> str | None:
+def dimension_page_url(resource: str, dim_registry: dict, depth: int) -> str | None:
     """Return the relative URL to a rendered dimension page, or None.
 
     Args:
@@ -339,7 +332,7 @@ def render_fields_table(
         name_cell = f"<code>{html.escape(name)}</code>"
         fk = fk_index.get(name)
         if fk:
-            tooltip = f'Foreign key → {fk["resource"]}'
+            tooltip = f"Foreign key → {fk['resource']}"
             url = dimension_page_url(fk["resource"], dim_registry, depth)
             if url:
                 name_cell += (
@@ -376,7 +369,7 @@ def render_fields_table(
         "<th>Name</th><th>Title</th><th>Type</th><th>Required</th>"
         "<th>Constraints</th><th>Description</th>"
         "</tr></thead>"
-        f'<tbody>{"".join(rows)}</tbody>'
+        f"<tbody>{''.join(rows)}</tbody>"
         "</table>"
         "</div>"
     )
@@ -431,7 +424,11 @@ def render_contract_page(
     header_html = render_contract_header(name, meta)
     pk_html = render_primary_key(schema)
     fields_html = render_fields_table(
-        fields, fk_index, dim_registry, page_depth, primary_key=pk,
+        fields,
+        fk_index,
+        dim_registry,
+        page_depth,
+        primary_key=pk,
     )
     return (
         '<div class="contract-page" markdown="0">'
@@ -475,23 +472,24 @@ def render_data_table(df, fields: list[dict]) -> str:
     head = "".join(f"<th>{html.escape(titles.get(c, c))}</th>" for c in present)
     body_rows = []
     for _, row in df[present].iterrows():
-        cells = "".join(
-            f"<td>{html.escape(clean(row[c]))}</td>" for c in present
-        )
+        cells = "".join(f"<td>{html.escape(clean(row[c]))}</td>" for c in present)
         body_rows.append(f"<tr>{cells}</tr>")
     return (
         '<div class="contract-fields" markdown="0">'
         '<h2 class="contract-fields-heading">Data</h2>'
         '<table class="contract-data-table sortable">'
         f"<thead><tr>{head}</tr></thead>"
-        f'<tbody>{"".join(body_rows)}</tbody>'
+        f"<tbody>{''.join(body_rows)}</tbody>"
         "</table>"
         "</div>"
     )
 
 
 def workbook_dimension_downloads(
-    name: str, page_depth: int, *, include_csv: bool = True,
+    name: str,
+    page_depth: int,
+    *,
+    include_csv: bool = True,
 ) -> list[tuple[str, str]]:
     """Build the standard download-pill set for a workbook-backed dimension page.
 
@@ -518,16 +516,12 @@ def workbook_dimension_downloads(
     """
     prefix = "../" * page_depth
     downloads = [
-        (f"{prefix}downloads/dimensions/{name}.yaml",
-         "Download contract (yaml)"),
+        (f"{prefix}downloads/dimensions/{name}.yaml", "Download contract (yaml)"),
     ]
     if include_csv:
-        downloads.append(
-            (f"{prefix}downloads/dimensions/{name}.csv", "Download CSV")
-        )
+        downloads.append((f"{prefix}downloads/dimensions/{name}.csv", "Download CSV"))
     downloads.append(
-        (f"{prefix}downloads/dimensions.xlsx",
-         "Download all dimensions (xlsx)")
+        (f"{prefix}downloads/dimensions.xlsx", "Download all dimensions (xlsx)")
     )
     return downloads
 
