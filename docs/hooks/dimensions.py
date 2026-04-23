@@ -1,18 +1,18 @@
 """mkdocs hook: drive dimension docs from the root-level `registry` module.
 
-Thin wrapper around :mod:`docs.hooks._yaml_contract_hooks` for the shared
-nav + stub-page plumbing, plus a dimension-specific `on_post_build` that
-emits the workbook and per-dimension CSV downloads.
+Thin wrapper around :mod:`docs.hooks._yaml_contract_hooks`. The registry is
+the single source of truth: edit ``registry.py`` at the project root and
+rebuild — nav, pages, and downloads update.
 
-The registry is the single source of truth: edit `registry.py` at the
-project root and rebuild — nav, pages, and downloads update.
+This hook additionally copies the shared workbook to the site's downloads
+folder in ``on_post_build``. Per-dimension CSVs are produced by the
+shared ``write_workbook_csvs`` helper so the logic stays in the core
+module; flexible dimensions reuse the same helper.
 """
 
 import shutil
 import sys
 from pathlib import Path
-
-import pandas as pd
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
@@ -28,6 +28,7 @@ if str(_HOOKS_DIR) not in sys.path:
 from _yaml_contract_hooks import (  # noqa: E402
     inject_nav_entries,
     inject_stub_files_and_downloads,
+    write_workbook_csvs,
 )
 from registry import (  # noqa: E402
     DIMENSIONS_XLSX,
@@ -37,6 +38,7 @@ from registry import (  # noqa: E402
 
 _SECTION_PATH = ["Dimensions"]
 _PAGE_SUBPATH = "dimensions"
+_DOWNLOAD_SUBPATH = "dimensions"
 _MACRO_NAME = "render_dimension"
 
 
@@ -67,25 +69,24 @@ def on_files(files, config):
         registry=_renderable_registry(),
         yaml_dir=DIMENSIONS_YAML_DIR,
         page_subpath=_PAGE_SUBPATH,
+        download_subpath=_DOWNLOAD_SUBPATH,
         macro_name=_MACRO_NAME,
     )
 
 
 def on_post_build(config, **kwargs):
-    """Write download artefacts under <site>/downloads/ after the build finishes.
+    """Ship the shared workbook and per-dimension CSVs to the site.
 
     Produces:
       - downloads/dimensions.xlsx — the original workbook copied verbatim.
       - downloads/dimensions/<name>.csv — one CSV per registered dimension,
-        UTF-8 with BOM so it opens cleanly in Excel.
+        emitted by the shared ``write_workbook_csvs`` helper (every entry
+        is included, including ``index_only`` rows the overview links to).
     """
     site_dir = Path(config["site_dir"])
     downloads = site_dir / "downloads"
-    per_dim = downloads / "dimensions"
-    per_dim.mkdir(parents=True, exist_ok=True)
-
+    downloads.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(DIMENSIONS_XLSX, downloads / "dimensions.xlsx")
-
-    for name, item in dimension_registry.items():
-        df = pd.read_excel(DIMENSIONS_XLSX, sheet_name=item.sheet_name)
-        df.to_csv(per_dim / f"{name}.csv", index=False, encoding="utf-8-sig")
+    write_workbook_csvs(
+        config, DIMENSIONS_XLSX, dimension_registry, _DOWNLOAD_SUBPATH,
+    )

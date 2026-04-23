@@ -39,9 +39,11 @@ def render_result(name: str) -> str:
     item = result_registry[name]
     yaml_path = RESULTS_YAML_DIR / f"{item.contract_file}.yaml"
     meta = load_contract(str(yaml_path))
-    download_url = f"../../../downloads/results/{name}.yaml"
+    downloads = [
+        (f"../../../downloads/results/{name}.yaml", "Download contract (yaml)"),
+    ]
     return render_contract_page(
-        name, meta, download_url, _RESULT_PAGE_DEPTH, dimension_registry,
+        name, meta, downloads, _RESULT_PAGE_DEPTH, dimension_registry,
     )
 
 

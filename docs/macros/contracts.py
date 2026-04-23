@@ -390,26 +390,31 @@ def render_fields_table(
 def render_contract_page(
     name: str,
     meta: dict,
-    download_url: str,
+    downloads: list[tuple[str, str]],
     page_depth: int,
     dim_registry: dict,
+    extra_body_html: str = "",
 ) -> str:
-    """Render the full HTML block for a single yaml-only contract page.
+    """Render the full HTML block for a single contract page.
 
-    Composes the primitives — downloads, header, primary key, fields table —
-    into the ``<div class="contract-page" markdown="0">`` wrapper shared by
-    assumption and result pages.
+    Composes the primitives — downloads, header, primary key, fields table
+    — into the ``<div class="contract-page" markdown="0">`` wrapper shared
+    by assumption, result, and flexible-dimension pages.
 
     Args:
         name: the registry key, used as fallback when the yaml has no
             ``name`` field of its own.
         meta: parsed contract yaml (output of :func:`load_contract`).
-        download_url: relative URL to the source yaml download, placed
-            behind the "Download contract (yaml)" pill button.
+        downloads: ordered ``(href, label)`` tuples rendered as the pill-
+            button row at the top of the page. Pass a single-item list for
+            yaml-only contracts.
         page_depth: directory depth of the calling page below the site root
             (with ``use_directory_urls: true``), propagated to
             :func:`render_fields_table` for dimension-link resolution.
         dim_registry: the ``dimension_registry`` dict from ``registry.py``.
+        extra_body_html: optional HTML appended after the fields table and
+            before the closing ``</div>``. Used by the flexible-dimension
+            macro to append a data table; leave empty for yaml-only pages.
 
     Returns:
         HTML string. The outer div carries ``markdown="0"`` so mkdocs does
@@ -422,9 +427,7 @@ def render_contract_page(
     if isinstance(pk, str):
         pk = [pk]
 
-    downloads_html = render_downloads(
-        [(download_url, "Download contract (yaml)")]
-    )
+    downloads_html = render_downloads(downloads)
     header_html = render_contract_header(name, meta)
     pk_html = render_primary_key(schema)
     fields_html = render_fields_table(
@@ -436,8 +439,97 @@ def render_contract_page(
         f"{header_html}"
         f"{pk_html}"
         f"{fields_html}"
+        f"{extra_body_html}"
         "</div>"
     )
+
+
+def render_data_table(df, fields: list[dict]) -> str:
+    """Render a pandas DataFrame as a sortable contract data table.
+
+    Column order follows ``fields`` (the Frictionless field list from the
+    contract yaml); any DataFrame column not named in ``fields`` is
+    dropped so workbook scratch columns never leak onto the page. Each
+    cell is normalised via :func:`clean` and HTML-escaped.
+
+    Args:
+        df: the pandas DataFrame holding the sheet rows.
+        fields: the ``tableschema.fields`` list from the contract yaml.
+            Each entry needs at least a ``name``; ``title`` is used for
+            the column header when present, falling back to ``name``.
+
+    Returns:
+        HTML block, or the empty string when there are no fields or no
+        rows after column filtering.
+    """
+    if not fields:
+        return ""
+    columns = [clean(f.get("name")) for f in fields if clean(f.get("name"))]
+    present = [c for c in columns if c in df.columns]
+    if not present:
+        return ""
+    titles = {
+        clean(f.get("name")): clean(f.get("title")) or clean(f.get("name"))
+        for f in fields
+    }
+    head = "".join(f"<th>{html.escape(titles.get(c, c))}</th>" for c in present)
+    body_rows = []
+    for _, row in df[present].iterrows():
+        cells = "".join(
+            f"<td>{html.escape(clean(row[c]))}</td>" for c in present
+        )
+        body_rows.append(f"<tr>{cells}</tr>")
+    return (
+        '<div class="contract-fields" markdown="0">'
+        '<h2 class="contract-fields-heading">Data</h2>'
+        '<table class="contract-data-table sortable">'
+        f"<thead><tr>{head}</tr></thead>"
+        f'<tbody>{"".join(body_rows)}</tbody>'
+        "</table>"
+        "</div>"
+    )
+
+
+def workbook_dimension_downloads(
+    name: str, page_depth: int, *, include_csv: bool = True,
+) -> list[tuple[str, str]]:
+    """Build the standard download-pill set for a workbook-backed dimension page.
+
+    The dimensions workbook is a single artefact shared by hierarchical
+    dimensions and flexible dimensions, so every page that renders a row
+    from it offers the same button triad: contract yaml → per-contract CSV
+    → full workbook. The CSV button is suppressed when ``include_csv`` is
+    False (flexible dimensions without ``show_data``).
+
+    Args:
+        name: the registry key; used to build the per-contract yaml and CSV
+            URLs. Both files must be emitted under
+            ``site/downloads/dimensions/``.
+        page_depth: directory depth of the calling page below the site
+            root (with ``use_directory_urls: true``). A hierarchical
+            dimension page at ``dimensions/<name>/`` is depth 2; a flexible
+            dimension page at ``dimensions/flexible/<name>/`` is depth 3.
+        include_csv: include the per-contract CSV button. Defaults to True.
+            Pass False when the registry entry has no inline data to ship.
+
+    Returns:
+        An ordered ``[(href, label), ...]`` list ready to pass to
+        :func:`render_downloads` or :func:`render_contract_page`.
+    """
+    prefix = "../" * page_depth
+    downloads = [
+        (f"{prefix}downloads/dimensions/{name}.yaml",
+         "Download contract (yaml)"),
+    ]
+    if include_csv:
+        downloads.append(
+            (f"{prefix}downloads/dimensions/{name}.csv", "Download CSV")
+        )
+    downloads.append(
+        (f"{prefix}downloads/dimensions.xlsx",
+         "Download all dimensions (xlsx)")
+    )
+    return downloads
 
 
 def render_contract_overview(registry: dict, yaml_dir: Path) -> str:

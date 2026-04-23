@@ -94,6 +94,37 @@ dimension_registry: dict[str, DimensionRegistryItem] = {
 
 
 @dataclass
+class FlexibleDimensionRegistryItem:
+    """Registry entry for a flat-schema dimension whose data lives in the
+    shared dimensions workbook.
+
+    Unlike `DimensionRegistryItem`, flexible dimensions do not carry a
+    hierarchy (no parent_id / level columns). The page composition mirrors
+    assumption/result pages — yaml metadata + Frictionless fields table —
+    and optionally renders the underlying data inline when `show_data` is
+    True.
+    """
+
+    contract_file: str
+    show_data: bool = False
+    # None falls back to `contract_file`. Set explicitly when the sheet name
+    # in the dimensions workbook diverges from the contract name.
+    data_sheet: str | None = None
+
+    @property
+    def sheet_name(self) -> str:
+        return self.data_sheet or self.contract_file
+
+
+flexible_dimension_registry: dict[str, FlexibleDimensionRegistryItem] = {
+    "dim_model": FlexibleDimensionRegistryItem(
+        contract_file="dim_model",
+        show_data=True,
+    ),
+}
+
+
+@dataclass
 class ContractRegistryItem:
     """Registry entry for a yaml-only contract (assumptions, results).
 

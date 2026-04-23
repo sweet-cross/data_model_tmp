@@ -39,9 +39,11 @@ def render_assumption(name: str) -> str:
     item = assumption_registry[name]
     yaml_path = ASSUMPTIONS_YAML_DIR / f"{item.contract_file}.yaml"
     meta = load_contract(str(yaml_path))
-    download_url = f"../../../downloads/assumptions/{name}.yaml"
+    downloads = [
+        (f"../../../downloads/assumptions/{name}.yaml", "Download contract (yaml)"),
+    ]
     return render_contract_page(
-        name, meta, download_url, _ASSUMPTION_PAGE_DEPTH, dimension_registry,
+        name, meta, downloads, _ASSUMPTION_PAGE_DEPTH, dimension_registry,
     )
 
 

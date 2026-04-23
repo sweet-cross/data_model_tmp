@@ -41,6 +41,7 @@ plugins:
 
 hooks:
   - docs/hooks/dimensions.py
+  - docs/hooks/flexible_dimensions.py
   - docs/hooks/assumptions.py
   - docs/hooks/results.py
   - docs/hooks/templates.py
@@ -65,6 +66,10 @@ nav:
       - Overview: dimensions/index.md
       # per-dimension pages are injected from registry.py
       # by docs/hooks/dimensions.py
+      - Flexible Dimensions:
+          - Overview: dimensions/flexible/index.md
+          # per-flexible-dimension pages are injected from registry.py
+          # by docs/hooks/flexible_dimensions.py
   - Variables:
       - Overview: variables/index.md
       - Assumptions:

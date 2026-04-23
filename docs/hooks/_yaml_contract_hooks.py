@@ -19,7 +19,9 @@ explicitly listed in ``mkdocs.yml``).
 """
 
 from pathlib import Path
+from typing import Callable
 
+import pandas as pd
 import yaml
 
 from mkdocs.structure.files import File, InclusionLevel
@@ -162,3 +164,39 @@ def inject_stub_files_and_downloads(
                 )
             )
     return files
+
+
+def write_workbook_csvs(
+    config,
+    xlsx_path: Path,
+    registry: dict,
+    download_subpath: str,
+    *,
+    include_item: Callable[[object], bool] | None = None,
+) -> None:
+    """Emit one CSV per registry entry sourced from a shared Excel workbook.
+
+    Each registry item must expose a ``sheet_name`` attribute (property or
+    plain field). Output files land at
+    ``<site>/downloads/<download_subpath>/<name>.csv``, UTF-8 with BOM so
+    Excel opens them cleanly. Call this from an ``on_post_build`` hook.
+
+    Args:
+        config: the mkdocs config dict passed to ``on_post_build``.
+        xlsx_path: filesystem path to the workbook to read sheets from.
+        registry: mapping of registry key → item.
+        download_subpath: URL segment under ``downloads/`` the CSVs share,
+            e.g. ``"dimensions"``.
+        include_item: optional predicate on the registry item; when it
+            returns False the entry is skipped. Defaults to including every
+            entry. Use e.g. ``lambda item: item.show_data`` to filter on a
+            flag the calling registry type carries.
+    """
+    site_dir = Path(config["site_dir"])
+    out_dir = site_dir / "downloads" / download_subpath
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for name, item in registry.items():
+        if include_item is not None and not include_item(item):
+            continue
+        df = pd.read_excel(xlsx_path, sheet_name=item.sheet_name)
+        df.to_csv(out_dir / f"{name}.csv", index=False, encoding="utf-8-sig")
