@@ -40,7 +40,7 @@ from mkdocs.structure.files import File, InclusionLevel
 #
 # When ``True`` each registered contract also gets a sidebar entry.
 # ---------------------------------------------------------------------------
-SHOW_CONTRACTS_IN_NAV = False
+SHOW_CONTRACTS_IN_NAV = True
 
 
 def _title_for(yaml_path: Path, fallback: str) -> str:
@@ -138,8 +138,7 @@ def inject_stub_files_and_downloads(
     """
     stub_template = '# {title}\n\n{{{{ {macro}("{name}") }}}}\n'
     stub_inclusion = (
-        InclusionLevel.INCLUDED if SHOW_CONTRACTS_IN_NAV
-        else InclusionLevel.NOT_IN_NAV
+        InclusionLevel.INCLUDED if SHOW_CONTRACTS_IN_NAV else InclusionLevel.NOT_IN_NAV
     )
     for name, item in registry.items():
         yaml_src = yaml_dir / f"{item.contract_file}.yaml"
@@ -148,9 +147,7 @@ def inject_stub_files_and_downloads(
             File.generated(
                 config,
                 f"{page_subpath}/{name}.md",
-                content=stub_template.format(
-                    title=title, macro=macro_name, name=name
-                ),
+                content=stub_template.format(title=title, macro=macro_name, name=name),
                 inclusion=stub_inclusion,
             )
         )
