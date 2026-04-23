@@ -33,9 +33,11 @@ from registry import (  # noqa: E402
 
 MAX_DEPTH = 3
 
-# Dimension pages live at dimensions/<name>/ with use_directory_urls: true,
-# i.e. two directory levels below the site root.
-_DIM_PAGE_DEPTH = 2
+# Dimension pages live at dimensions/dimensions/<name>/ with
+# use_directory_urls: true — three directory levels below the site root.
+# Path matches ``_PAGE_SUBPATH`` in docs/hooks/dimensions.py; update both
+# together.
+_DIM_PAGE_DEPTH = 3
 
 
 @lru_cache(maxsize=None)
@@ -149,9 +151,9 @@ def render_dimension(name: str) -> str:
     tree_html = "".join(_render_node(r, children_map, 0) for r in roots)
     return (
         '<div class="contract-page" markdown="0">'
-        f"{downloads_html}"
         f"{header_html}"
         f'<div class="dim-tree">{tree_html}</div>'
+        f"{downloads_html}"
         "</div>"
     )
 

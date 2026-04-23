@@ -274,7 +274,9 @@ def dimension_page_url(resource: str, dim_registry: dict, depth: int) -> str | N
     entry = dim_registry.get(resource)
     if entry is None or getattr(entry, "index_only", False):
         return None
-    return "../" * depth + f"dimensions/{resource}/"
+    # Path segment matches ``_PAGE_SUBPATH`` in docs/hooks/dimensions.py;
+    # update both together if the hierarchical-dimension hook moves.
+    return "../" * depth + f"dimensions/dimensions/{resource}/"
 
 
 # ---------------------------------------------------------------------------
@@ -432,11 +434,11 @@ def render_contract_page(
     )
     return (
         '<div class="contract-page" markdown="0">'
-        f"{downloads_html}"
         f"{header_html}"
         f"{pk_html}"
         f"{fields_html}"
         f"{extra_body_html}"
+        f"{downloads_html}"
         "</div>"
     )
 
