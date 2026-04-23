@@ -119,7 +119,11 @@ class FlexibleDimensionRegistryItem:
 flexible_dimension_registry: dict[str, FlexibleDimensionRegistryItem] = {
     "dim_model": FlexibleDimensionRegistryItem(
         contract_file="dim_model",
-        show_data=True,
+        show_data=False,
+    ),
+    "dim_scenario": FlexibleDimensionRegistryItem(
+        contract_file="dim_scenario",
+        show_data=False,
     ),
 }
 

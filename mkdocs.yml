@@ -66,6 +66,10 @@ nav:
       - Overview: dimensions/index.md
       # per-dimension pages are injected from registry.py
       # by docs/hooks/dimensions.py
+      - Dimensions:
+          - Overview: dimensions/dimensions/index.md
+          # per-dimension pages are injected from registry.py
+          # by docs/hooks/dimensions.py
       - Flexible Dimensions:
           - Overview: dimensions/flexible/index.md
           # per-flexible-dimension pages are injected from registry.py

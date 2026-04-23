@@ -36,8 +36,8 @@ from registry import (  # noqa: E402
     dimension_registry,
 )
 
-_SECTION_PATH = ["Dimensions"]
-_PAGE_SUBPATH = "dimensions"
+_SECTION_PATH = ["Dimensions", "Dimensions"]
+_PAGE_SUBPATH = "dimensions/dimensions"
 _DOWNLOAD_SUBPATH = "dimensions"
 _MACRO_NAME = "render_dimension"
 
@@ -50,15 +50,16 @@ def _renderable_registry() -> dict:
     generation.
     """
     return {
-        name: item
-        for name, item in dimension_registry.items()
-        if not item.index_only
+        name: item for name, item in dimension_registry.items() if not item.index_only
     }
 
 
 def on_config(config):
     return inject_nav_entries(
-        config, _SECTION_PATH, _renderable_registry(), _PAGE_SUBPATH,
+        config,
+        _SECTION_PATH,
+        _renderable_registry(),
+        _PAGE_SUBPATH,
     )
 
 
@@ -88,5 +89,8 @@ def on_post_build(config, **kwargs):
     downloads.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(DIMENSIONS_XLSX, downloads / "dimensions.xlsx")
     write_workbook_csvs(
-        config, DIMENSIONS_XLSX, dimension_registry, _DOWNLOAD_SUBPATH,
+        config,
+        DIMENSIONS_XLSX,
+        dimension_registry,
+        _DOWNLOAD_SUBPATH,
     )
