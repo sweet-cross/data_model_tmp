@@ -37,5 +37,6 @@ jobs:
               uses: actions/github-script@v9
               with:
                   script: |
-                      const { default: script } = await import('./.github/scripts/post_pr_comment.mjs');
+                      const path = require('path');
+                      const { default: script } = await import(path.join(process.cwd(), '.github/scripts/post_pr_comment.mjs'));
                       await script({ github, context });
