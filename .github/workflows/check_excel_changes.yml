@@ -47,7 +47,6 @@ jobs:
                   github.base_ref }}" --output /tmp/diff_output.md
 
             - name: Post diff as PR comment
-              if: steps.check-dimensions-changed.outputs.changed == 'true'
               uses: actions/github-script@v9
               with:
                   script: |
