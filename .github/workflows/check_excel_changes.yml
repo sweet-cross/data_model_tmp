@@ -28,6 +28,8 @@ jobs:
               run: pip install openpyxl
 
             - name: Generate diff
+              id: diff-dimension-excel
+              continue-on-error: true
               run: >
                   python .github/scripts/excel_diff.py --files
                   "data/dimensions/dimensions.xlsx" --base-ref "${{
@@ -40,3 +42,9 @@ jobs:
                       const scriptPath = process.cwd() + '/.github/scripts/post_pr_comment.mjs';
                       const { default: script } = await import('file://' + scriptPath);
                       await script({ github, context });
+
+            - name: Fail on validation errors
+              if: steps.diff-dimension-excel.outcome == 'failure'
+              run: |
+                  echo "::error::Excel validation failed — see PR comment for details"
+                  exit 1
