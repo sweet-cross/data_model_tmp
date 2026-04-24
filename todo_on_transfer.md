@@ -1,0 +1,5 @@
+- Activate branch protection:
+  - Rules - Ruleset - Branch
+  - for main: 
+    - Require Validation: Require status check to pass excel-diff
+    - Only PR to merge to main: 
