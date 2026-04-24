@@ -1,0 +1,11 @@
+# .github/workflows/on-merge-to-main.yml
+name: Post-merge orchestrator
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-docs:
+    uses: ./.github/workflows/build_publish_docs.yml
