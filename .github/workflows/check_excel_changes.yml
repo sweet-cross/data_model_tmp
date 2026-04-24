@@ -1,0 +1,41 @@
+# .github/workflows/excel-diff.yml
+name: Excel Diff on PR
+
+on:
+    pull_request:
+        paths:
+            - "data/dimensions/dimensions.xlsx"
+
+permissions:
+    contents: read
+    pull-requests: write
+
+jobs:
+    excel-diff:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout PR branch
+              uses: actions/checkout@v6
+              with:
+                  fetch-depth: 0
+
+            - name: Set up Python
+              uses: actions/setup-python@v6
+              with:
+                  python-version: "3.13"
+
+            - name: Install dependencies
+              run: pip install openpyxl
+
+            - name: Generate diff
+              run: >
+                  python .github/scripts/excel_diff.py --files
+                  "data/dimensions/dimensions.xlsx" --base-ref "${{
+                  github.base_ref }}" --output /tmp/diff_output.md
+
+            - name: Post diff as PR comment
+              uses: actions/github-script@v9
+              with:
+                  script: |
+                      const script = require('./.github/scripts/post_pr_comment.js');
+                      await script({ github, context });
