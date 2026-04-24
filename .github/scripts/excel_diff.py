@@ -1,7 +1,7 @@
 # .github/scripts/excel_diff.py
 """
 Compare Excel files between base and head branch of a PR.
-Outputs a Markdown diff report.
+Outputs a Markdown diff report with row-level changes, matched by ID column.
 
 Usage:
     python excel_diff.py --files "path/to/file.xlsx" --base-ref main --output diff.md
@@ -36,7 +36,7 @@ def get_base_version(filepath: str, base_ref: str) -> dict[str, list[list[str]]]
             capture_output=True,
         )
         if result.returncode != 0:
-            return {}  # file is new in this PR
+            return {}
 
         tmp = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
         tmp.write(result.stdout)
@@ -48,20 +48,254 @@ def get_base_version(filepath: str, base_ref: str) -> dict[str, list[list[str]]]
         return {}
 
 
-def col_index_to_letter(index: int) -> str:
-    """Convert a 0-based column index to Excel-style letter (0=A, 25=Z, 26=AA)."""
-    col_letter = ""
-    col_num = index
-    while col_num >= 0:
-        col_letter = chr(col_num % 26 + 65) + col_letter
-        col_num = col_num // 26 - 1
-    return col_letter
+def find_id_column(headers: list[str]) -> int | None:
+    """Find the index of the 'id' column (case-insensitive)."""
+    for i, h in enumerate(headers):
+        if h.strip().lower() == "id":
+            return i
+    return None
+
+
+def find_duplicates(rows: list[list[str]], id_col: int) -> list[str]:
+    """Return list of duplicate ID values."""
+    seen = {}
+    duplicates = []
+    for row in rows:
+        if id_col < len(row):
+            val = row[id_col]
+            if val in seen:
+                if val not in duplicates:
+                    duplicates.append(val)
+            else:
+                seen[val] = True
+    return duplicates
+
+
+def build_row_index(rows: list[list[str]], id_col: int) -> dict[str, list[str]]:
+    """Build a dict mapping ID value -> row data. Last occurrence wins."""
+    index = {}
+    for row in rows:
+        if id_col < len(row):
+            index[row[id_col]] = row
+    return index
+
+
+def highlight_changed_cells(
+    headers: list[str], old_row: list[str], new_row: list[str]
+) -> tuple[str, str]:
+    """Format old and new rows, bolding cells that changed."""
+    max_cols = len(headers)
+    old_padded = old_row + [""] * (max_cols - len(old_row))
+    new_padded = new_row + [""] * (max_cols - len(new_row))
+
+    old_cells = []
+    new_cells = []
+    for i in range(max_cols):
+        old_val = old_padded[i].replace("|", "\\|")
+        new_val = new_padded[i].replace("|", "\\|")
+        if old_val != new_val:
+            old_cells.append(f"**{old_val}**")
+            new_cells.append(f"**{new_val}**")
+        else:
+            old_cells.append(old_val)
+            new_cells.append(new_val)
+
+    return (
+        "| " + " | ".join(old_cells) + " |",
+        "| " + " | ".join(new_cells) + " |",
+    )
+
+
+def format_row(headers: list[str], row: list[str]) -> str:
+    """Format a single data row as a Markdown table row."""
+    padded = row + [""] * (len(headers) - len(row))
+    return (
+        "| " + " | ".join(v.replace("|", "\\|") for v in padded[: len(headers)]) + " |"
+    )
+
+
+def diff_sheet_by_id(
+    sheet: str,
+    old_rows: list[list[str]],
+    new_rows: list[list[str]],
+    headers: list[str],
+    id_col: int,
+) -> list[str]:
+    """Diff a single sheet using ID-based matching. Returns markdown lines."""
+    lines = []
+
+    old_data = old_rows[1:]  # skip header
+    new_data = new_rows[1:]  # skip header
+
+    # Check for duplicate IDs
+    old_dupes = find_duplicates(old_data, id_col)
+    new_dupes = find_duplicates(new_data, id_col)
+
+    if old_dupes or new_dupes:
+        lines.append(f"### ❌ Sheet: `{sheet}` — Duplicate IDs detected")
+        lines.append("")
+        if old_dupes:
+            lines.append(f"Base branch duplicates: `{'`, `'.join(old_dupes)}`")
+        if new_dupes:
+            lines.append(f"PR branch duplicates: `{'`, `'.join(new_dupes)}`")
+        lines.append("")
+        lines.append("Resolve duplicate IDs before meaningful diff is possible.")
+        lines.append("")
+        return lines
+
+    old_index = build_row_index(old_data, id_col)
+    new_index = build_row_index(new_data, id_col)
+
+    all_ids_old = list(old_index.keys())
+    all_ids_new = list(new_index.keys())
+
+    # Preserve order: new rows order, then deleted ones
+    seen = set()
+    ordered_ids = []
+    for id_val in all_ids_new:
+        ordered_ids.append(id_val)
+        seen.add(id_val)
+    for id_val in all_ids_old:
+        if id_val not in seen:
+            ordered_ids.append(id_val)
+
+    header_line = "| " + " | ".join(h.replace("|", "\\|") for h in headers) + " |"
+    sep_line = "| " + " | ".join("---" for _ in headers) + " |"
+
+    changes = []
+
+    for id_val in ordered_ids:
+        in_old = id_val in old_index
+        in_new = id_val in new_index
+
+        if in_old and not in_new:
+            # Deleted
+            changes.append(("deleted", id_val, old_index[id_val]))
+
+        elif not in_old and in_new:
+            # Added
+            changes.append(("added", id_val, new_index[id_val]))
+
+        elif in_old and in_new:
+            old_row = old_index[id_val]
+            new_row = new_index[id_val]
+            if old_row != new_row:
+                # Check if ID column itself changed (shouldn't happen in
+                # same-key match, but catches cases where another column
+                # was the original ID and got remapped)
+                id_changed = old_row[id_col] != new_row[id_col]
+                changes.append(("changed", id_val, old_row, new_row, id_changed))
+
+    if not changes:
+        return []  # no changes, report nothing
+
+    lines.append(f"### 📝 Sheet: `{sheet}` — {len(changes)} row(s) affected")
+    lines.append("")
+
+    for change in changes:
+        if change[0] == "added":
+            _, id_val, new_row = change
+            lines.append(f"**Row `{id_val}` — Added**")
+            lines.append("")
+            lines.append(header_line)
+            lines.append(sep_line)
+            lines.append(format_row(headers, new_row))
+            lines.append("")
+
+        elif change[0] == "deleted":
+            _, id_val, old_row = change
+            lines.append(f"**⚠️ Row `{id_val}` — Deleted**")
+            lines.append("")
+            lines.append(header_line)
+            lines.append(sep_line)
+            lines.append(format_row(headers, old_row))
+            lines.append("")
+
+        elif change[0] == "changed":
+            _, id_val, old_row, new_row, id_changed = change
+            if id_changed:
+                label = f"**⚠️ Row `{id_val}` — Key change**"
+            else:
+                label = f"**Row `{id_val}` — Changed** (changed cells in bold)"
+            old_line, new_line = highlight_changed_cells(headers, old_row, new_row)
+            lines.append(label)
+            lines.append("")
+            lines.append(header_line)
+            lines.append(sep_line)
+            lines.append(old_line)
+            lines.append(new_line)
+            lines.append("")
+
+    return lines
+
+
+def diff_sheet_positional(
+    sheet: str,
+    old_rows: list[list[str]],
+    new_rows: list[list[str]],
+    headers: list[str],
+) -> list[str]:
+    """Fallback: positional diff when no ID column exists."""
+    lines = []
+    header_line = "| " + " | ".join(h.replace("|", "\\|") for h in headers) + " |"
+    sep_line = "| " + " | ".join("---" for _ in headers) + " |"
+
+    changes = []
+    max_rows = max(len(old_rows), len(new_rows))
+
+    for r in range(1, max_rows):
+        old_row = old_rows[r] if r < len(old_rows) else None
+        new_row = new_rows[r] if r < len(new_rows) else None
+
+        if old_row is None and new_row is not None:
+            changes.append(("added", r, new_row))
+        elif old_row is not None and new_row is None:
+            changes.append(("deleted", r, old_row))
+        elif old_row != new_row:
+            changes.append(("changed", r, old_row, new_row))
+
+    if not changes:
+        return []
+
+    lines.append(
+        f"### 📝 Sheet: `{sheet}` — {len(changes)} row(s) affected (no ID column, positional diff)"
+    )
+    lines.append("")
+
+    for change in changes:
+        if change[0] == "added":
+            _, row_num, new_row = change
+            lines.append(f"**Row {row_num} — Added**")
+            lines.append("")
+            lines.append(header_line)
+            lines.append(sep_line)
+            lines.append(format_row(headers, new_row))
+            lines.append("")
+        elif change[0] == "deleted":
+            _, row_num, old_row = change
+            lines.append(f"**⚠️ Row {row_num} — Deleted**")
+            lines.append("")
+            lines.append(header_line)
+            lines.append(sep_line)
+            lines.append(format_row(headers, old_row))
+            lines.append("")
+        elif change[0] == "changed":
+            _, row_num, old_row, new_row = change
+            old_line, new_line = highlight_changed_cells(headers, old_row, new_row)
+            lines.append(f"**Row {row_num} — Changed** (changed cells in bold)")
+            lines.append("")
+            lines.append(header_line)
+            lines.append(sep_line)
+            lines.append(old_line)
+            lines.append(new_line)
+            lines.append("")
+
+    return lines
 
 
 def diff_workbooks(
     old_data: dict[str, list[list[str]]],
     new_data: dict[str, list[list[str]]],
-    max_changes_per_sheet: int = 200,
 ) -> str:
     """Compare two workbook extracts, return a Markdown diff."""
     lines = []
@@ -79,37 +313,19 @@ def diff_workbooks(
 
         old_rows = old_data[sheet]
         new_rows = new_data[sheet]
-        changes = []
 
-        max_rows = max(len(old_rows), len(new_rows))
-        for r in range(max_rows):
-            old_row = old_rows[r] if r < len(old_rows) else []
-            new_row = new_rows[r] if r < len(new_rows) else []
-            max_cols = max(len(old_row), len(new_row))
+        headers = old_rows[0] if old_rows else new_rows[0] if new_rows else []
+        if not headers:
+            continue
 
-            for c in range(max_cols):
-                old_val = old_row[c] if c < len(old_row) else ""
-                new_val = new_row[c] if c < len(new_row) else ""
-                if old_val != new_val:
-                    cell_ref = f"{col_index_to_letter(c)}{r + 1}"
-                    changes.append((cell_ref, old_val, new_val))
+        id_col = find_id_column(headers)
 
-        if changes:
-            lines.append(f"### 📝 Sheet: `{sheet}` — {len(changes)} change(s)")
-            lines.append("")
-            lines.append("| Cell | Old Value | New Value |")
-            lines.append("|------|-----------|-----------|")
-            for cell, old, new in changes[:max_changes_per_sheet]:
-                old_esc = old.replace("|", "\\|")
-                new_esc = new.replace("|", "\\|")
-                lines.append(f"| `{cell}` | {old_esc} | {new_esc} |")
-            if len(changes) > max_changes_per_sheet:
-                remaining = len(changes) - max_changes_per_sheet
-                lines.append(f"| ... | _{remaining} more changes_ | |")
-            lines.append("")
+        if id_col is not None:
+            sheet_lines = diff_sheet_by_id(sheet, old_rows, new_rows, headers, id_col)
         else:
-            lines.append(f"### ✅ Sheet: `{sheet}` — no changes")
-            lines.append("")
+            sheet_lines = diff_sheet_positional(sheet, old_rows, new_rows, headers)
+
+        lines.extend(sheet_lines)
 
     return "\n".join(lines)
 
