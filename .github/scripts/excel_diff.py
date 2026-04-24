@@ -10,6 +10,7 @@ Usage:
 import argparse
 import os
 import subprocess
+import sys
 import tempfile
 
 from openpyxl import load_workbook
@@ -356,11 +357,16 @@ def main():
             all_output.append(f"⚠️ Error processing file: {e}\n")
 
     output = "\n".join(all_output)
+    has_errors = "❌" in output
 
     with open(args.output, "w") as f:
         f.write(output)
 
     print(f"Generated diff for {len(files)} file(s) -> {args.output}")
+
+    if has_errors:
+        print("::error::Validation errors found in Excel file(s)")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
