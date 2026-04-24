@@ -176,7 +176,7 @@ def render_contract_index(entries: list[tuple[str, str, str, str | None]]) -> st
         '<div class="contract-index" markdown="0">'
         '<table class="contract-index-table sortable">'
         "<thead><tr><th>Name</th><th>Title</th><th>Description</th></tr></thead>"
-        f'<tbody>{"".join(rows)}</tbody>'
+        f"<tbody>{''.join(rows)}</tbody>"
         "</table>"
         "</div>"
     )
@@ -205,8 +205,7 @@ def render_primary_key(table_schema: dict) -> str:
         return ""
     keys_html = ", ".join(f"<code>{html.escape(str(k))}</code>" for k in pk)
     return (
-        '<p class="contract-primary-key">'
-        f"<strong>Primary key:</strong> {keys_html}</p>"
+        f'<p class="contract-primary-key"><strong>Primary key:</strong> {keys_html}</p>'
     )
 
 
@@ -248,11 +247,7 @@ def foreign_key_index(table_schema: dict) -> dict[str, dict]:
             field = fields
         if not field or not resource or resource == SCENARIO_FK_RESOURCE:
             continue
-        target = (
-            target_fields[0]
-            if isinstance(target_fields, list)
-            else target_fields
-        )
+        target = target_fields[0] if isinstance(target_fields, list) else target_fields
         out[str(field)] = {
             "resource": str(resource),
             "target": str(target or ""),
@@ -260,9 +255,7 @@ def foreign_key_index(table_schema: dict) -> dict[str, dict]:
     return out
 
 
-def dimension_page_url(
-    resource: str, dim_registry: dict, depth: int
-) -> str | None:
+def dimension_page_url(resource: str, dim_registry: dict, depth: int) -> str | None:
     """Return the relative URL to a rendered dimension page, or None.
 
     Args:
@@ -281,7 +274,9 @@ def dimension_page_url(
     entry = dim_registry.get(resource)
     if entry is None or getattr(entry, "index_only", False):
         return None
-    return "../" * depth + f"dimensions/{resource}/"
+    # Path segment matches ``_PAGE_SUBPATH`` in docs/hooks/dimensions.py;
+    # update both together if the hierarchical-dimension hook moves.
+    return "../" * depth + f"dimensions/dimensions/{resource}/"
 
 
 # ---------------------------------------------------------------------------
@@ -339,7 +334,7 @@ def render_fields_table(
         name_cell = f"<code>{html.escape(name)}</code>"
         fk = fk_index.get(name)
         if fk:
-            tooltip = f'Foreign key → {fk["resource"]}'
+            tooltip = f"Foreign key → {fk['resource']}"
             url = dimension_page_url(fk["resource"], dim_registry, depth)
             if url:
                 name_cell += (
@@ -376,7 +371,183 @@ def render_fields_table(
         "<th>Name</th><th>Title</th><th>Type</th><th>Required</th>"
         "<th>Constraints</th><th>Description</th>"
         "</tr></thead>"
-        f'<tbody>{"".join(rows)}</tbody>'
+        f"<tbody>{''.join(rows)}</tbody>"
         "</table>"
         "</div>"
     )
+
+
+# ---------------------------------------------------------------------------
+# Full-page composition (used by yaml-only contract macros)
+# ---------------------------------------------------------------------------
+
+
+def render_contract_page(
+    name: str,
+    meta: dict,
+    downloads: list[tuple[str, str]],
+    page_depth: int,
+    dim_registry: dict,
+    extra_body_html: str = "",
+) -> str:
+    """Render the full HTML block for a single contract page.
+
+    Composes the primitives — downloads, header, primary key, fields table
+    — into the ``<div class="contract-page" markdown="0">`` wrapper shared
+    by assumption, result, and flexible-dimension pages.
+
+    Args:
+        name: the registry key, used as fallback when the yaml has no
+            ``name`` field of its own.
+        meta: parsed contract yaml (output of :func:`load_contract`).
+        downloads: ordered ``(href, label)`` tuples rendered as the pill-
+            button row at the top of the page. Pass a single-item list for
+            yaml-only contracts.
+        page_depth: directory depth of the calling page below the site root
+            (with ``use_directory_urls: true``), propagated to
+            :func:`render_fields_table` for dimension-link resolution.
+        dim_registry: the ``dimension_registry`` dict from ``registry.py``.
+        extra_body_html: optional HTML appended after the fields table and
+            before the closing ``</div>``. Used by the flexible-dimension
+            macro to append a data table; leave empty for yaml-only pages.
+
+    Returns:
+        HTML string. The outer div carries ``markdown="0"`` so mkdocs does
+        not re-parse the body as markdown.
+    """
+    schema = meta.get("tableschema") or {}
+    fields = schema.get("fields") or []
+    fk_index = foreign_key_index(schema)
+    pk = schema.get("primaryKey") or []
+    if isinstance(pk, str):
+        pk = [pk]
+
+    downloads_html = render_downloads(downloads)
+    header_html = render_contract_header(name, meta)
+    pk_html = render_primary_key(schema)
+    fields_html = render_fields_table(
+        fields,
+        fk_index,
+        dim_registry,
+        page_depth,
+        primary_key=pk,
+    )
+    return (
+        '<div class="contract-page" markdown="0">'
+        f"{header_html}"
+        f"{pk_html}"
+        f"{fields_html}"
+        f"{extra_body_html}"
+        f"{downloads_html}"
+        "</div>"
+    )
+
+
+def render_data_table(df, fields: list[dict]) -> str:
+    """Render a pandas DataFrame as a sortable contract data table.
+
+    Column order follows ``fields`` (the Frictionless field list from the
+    contract yaml); any DataFrame column not named in ``fields`` is
+    dropped so workbook scratch columns never leak onto the page. Each
+    cell is normalised via :func:`clean` and HTML-escaped.
+
+    Args:
+        df: the pandas DataFrame holding the sheet rows.
+        fields: the ``tableschema.fields`` list from the contract yaml.
+            Each entry needs at least a ``name``; ``title`` is used for
+            the column header when present, falling back to ``name``.
+
+    Returns:
+        HTML block, or the empty string when there are no fields or no
+        rows after column filtering.
+    """
+    if not fields:
+        return ""
+    columns = [clean(f.get("name")) for f in fields if clean(f.get("name"))]
+    present = [c for c in columns if c in df.columns]
+    if not present:
+        return ""
+    titles = {
+        clean(f.get("name")): clean(f.get("title")) or clean(f.get("name"))
+        for f in fields
+    }
+    head = "".join(f"<th>{html.escape(titles.get(c, c))}</th>" for c in present)
+    body_rows = []
+    for _, row in df[present].iterrows():
+        cells = "".join(f"<td>{html.escape(clean(row[c]))}</td>" for c in present)
+        body_rows.append(f"<tr>{cells}</tr>")
+    return (
+        '<div class="contract-fields" markdown="0">'
+        '<h2 class="contract-fields-heading">Data</h2>'
+        '<table class="contract-data-table sortable">'
+        f"<thead><tr>{head}</tr></thead>"
+        f"<tbody>{''.join(body_rows)}</tbody>"
+        "</table>"
+        "</div>"
+    )
+
+
+def workbook_dimension_downloads(
+    name: str,
+    page_depth: int,
+    *,
+    include_csv: bool = True,
+) -> list[tuple[str, str]]:
+    """Build the standard download-pill set for a workbook-backed dimension page.
+
+    The dimensions workbook is a single artefact shared by hierarchical
+    dimensions and flexible dimensions, so every page that renders a row
+    from it offers the same button triad: contract yaml → per-contract CSV
+    → full workbook. The CSV button is suppressed when ``include_csv`` is
+    False (flexible dimensions without ``show_data``).
+
+    Args:
+        name: the registry key; used to build the per-contract yaml and CSV
+            URLs. Both files must be emitted under
+            ``site/downloads/dimensions/``.
+        page_depth: directory depth of the calling page below the site
+            root (with ``use_directory_urls: true``). A hierarchical
+            dimension page at ``dimensions/<name>/`` is depth 2; a flexible
+            dimension page at ``dimensions/flexible/<name>/`` is depth 3.
+        include_csv: include the per-contract CSV button. Defaults to True.
+            Pass False when the registry entry has no inline data to ship.
+
+    Returns:
+        An ordered ``[(href, label), ...]`` list ready to pass to
+        :func:`render_downloads` or :func:`render_contract_page`.
+    """
+    prefix = "../" * page_depth
+    downloads = [
+        (f"{prefix}downloads/dimensions/{name}.yaml", "Download contract (yaml)"),
+    ]
+    if include_csv:
+        downloads.append((f"{prefix}downloads/dimensions/{name}.csv", "Download CSV"))
+    downloads.append(
+        (f"{prefix}downloads/dimensions.xlsx", "Download all dimensions (xlsx)")
+    )
+    return downloads
+
+
+def render_contract_overview(registry: dict, yaml_dir: Path) -> str:
+    """Render the sortable overview table for a yaml-only contract registry.
+
+    Reads ``title`` and ``description`` from each registered contract's yaml
+    and delegates to :func:`render_contract_index` with per-entry href
+    ``"<name>/"`` — relative to the overview page that hosts the call.
+
+    Args:
+        registry: mapping of registry key → item with a ``contract_file``
+            attribute (duck-typed; works with
+            :class:`registry.ContractRegistryItem`).
+        yaml_dir: directory holding the ``<contract_file>.yaml`` sources.
+
+    Returns:
+        HTML table, or a placeholder paragraph when the registry is empty.
+    """
+    entries: list[tuple[str, str, str, str | None]] = []
+    for name, item in registry.items():
+        meta = load_contract(str(yaml_dir / f"{item.contract_file}.yaml"))
+        title = str(meta.get("title") or name).strip()
+        desc = str(meta.get("description") or "").strip()
+        entries.append((name, title, desc, f"{name}/"))
+    return render_contract_index(entries)

@@ -41,7 +41,9 @@ plugins:
 
 hooks:
   - docs/hooks/dimensions.py
+  - docs/hooks/flexible_dimensions.py
   - docs/hooks/assumptions.py
+  - docs/hooks/results.py
   - docs/hooks/templates.py
 
 markdown_extensions:
@@ -64,11 +66,24 @@ nav:
       - Overview: dimensions/index.md
       # per-dimension pages are injected from registry.py
       # by docs/hooks/dimensions.py
+      - Dimensions:
+          - Overview: dimensions/dimensions/index.md
+          # per-dimension pages are injected from registry.py
+          # by docs/hooks/dimensions.py
+      - Flexible Dimensions:
+          - Overview: dimensions/flexible/index.md
+          # per-flexible-dimension pages are injected from registry.py
+          # by docs/hooks/flexible_dimensions.py
   - Variables:
+      - Overview: variables/index.md
       - Assumptions:
           - Overview: variables/assumptions/index.md
           # per-assumption pages are injected from registry.py
           # by docs/hooks/assumptions.py
+      - Results:
+          - Overview: variables/results/index.md
+          # per-result pages are injected from registry.py
+          # by docs/hooks/results.py
   - Result Submission:
       - Overview: result_submission/index.md
       - Templates for result submission: result_submission/upload_templates.md

@@ -72,6 +72,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  margin-top: 2rem;
   margin-bottom: 1.25rem;
 }
 .contract-download-btn {
