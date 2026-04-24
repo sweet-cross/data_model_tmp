@@ -37,5 +37,5 @@ jobs:
               uses: actions/github-script@v9
               with:
                   script: |
-                      const script = require('./.github/scripts/post_pr_comment.js');
+                      const script = require('./.github/scripts/post_pr_comment.mjs');
                       await script({ github, context });
