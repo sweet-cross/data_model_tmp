@@ -1,0 +1,3 @@
+- Activate branch protection:
+  - Rules - Ruleset - Branch
+  - for main: Require status check to pass excel-diff
