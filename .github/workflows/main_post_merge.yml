@@ -7,5 +7,110 @@ on:
       - main
 
 jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      released: ${{ steps.do-release.outputs.released || 'false' }}
+      new_version: ${{ steps.bump.outputs.new_version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Find last release tag
+        id: last-tag
+        run: |
+          if tag=$(git describe --tags --abbrev=0 --match 'dimensions-v*' 2>/dev/null); then
+              echo "tag=$tag" >> $GITHUB_OUTPUT
+              echo "Found last release tag: $tag"
+          else
+              echo "tag=" >> $GITHUB_OUTPUT
+              echo "::warning::No prior dimensions-v* tag found — skipping release. Manually tag the seed commit (e.g. 'git tag dimensions-v0.1.0 <sha>') to enable automated bumps."
+          fi
+
+      - name: Check if dimensions.xlsx changed since last tag
+        id: check-changed
+        if: steps.last-tag.outputs.tag != ''
+        run: |
+          if git diff --name-only "${{ steps.last-tag.outputs.tag }}"...HEAD | grep -q "data/dimensions/dimensions.xlsx"; then
+              echo "changed=true" >> $GITHUB_OUTPUT
+              echo "dimensions.xlsx changed since ${{ steps.last-tag.outputs.tag }}"
+          else
+              echo "changed=false" >> $GITHUB_OUTPUT
+              echo "dimensions.xlsx unchanged since ${{ steps.last-tag.outputs.tag }} — no release"
+          fi
+
+      - name: Set up Python
+        if: steps.check-changed.outputs.changed == 'true'
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        if: steps.check-changed.outputs.changed == 'true'
+        run: pip install openpyxl
+
+      - name: Compute version bump
+        id: bump
+        if: steps.check-changed.outputs.changed == 'true'
+        run: |
+          python .github/scripts/compute_version_bump.py \
+              --workbook data/dimensions/dimensions.xlsx \
+              --version-file data/dimensions/VERSION \
+              --base-ref "${{ steps.last-tag.outputs.tag }}" \
+              --out /tmp/bump.json
+          cat /tmp/bump.json
+          {
+              echo "no_op=$(python -c "import json;print(json.load(open('/tmp/bump.json'))['no_op'])")"
+              echo "new_version=$(python -c "import json;print(json.load(open('/tmp/bump.json'))['new_version'])")"
+              echo "has_errors=$(python -c "import json;print(json.load(open('/tmp/bump.json'))['has_errors'])")"
+          } >> $GITHUB_OUTPUT
+
+      - name: Fail on validation errors
+        if: steps.bump.outputs.has_errors == 'True'
+        run: |
+          echo "::error::Workbook has validation errors (e.g. duplicate IDs); refusing to release."
+          exit 1
+
+      - name: Update VERSION and CHANGELOG, commit, tag, push
+        id: do-release
+        if: steps.bump.outputs.no_op == 'False'
+        run: |
+          python - <<'PY'
+          import json, pathlib, datetime
+          b = json.load(open('/tmp/bump.json'))
+          pathlib.Path('data/dimensions/VERSION').write_text(b['new_version'] + '\n')
+
+          today = datetime.date.today().isoformat()
+          cl = pathlib.Path('data/dimensions/CHANGELOG.md')
+          existing = cl.read_text()
+          marker = '\n## '
+          idx = existing.find(marker)
+          if idx == -1:
+              head, body = existing, ''
+          else:
+              head, body = existing[:idx], existing[idx:]
+          entry = f"\n## {b['new_version']} — {today}\n\n{b['summary_markdown']}\n"
+          cl.write_text(head + entry + body)
+          PY
+
+          NEW="${{ steps.bump.outputs.new_version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/dimensions/VERSION data/dimensions/CHANGELOG.md
+          git commit -m "chore(dimensions): release v${NEW}"
+          git tag "dimensions-v${NEW}"
+          git push origin HEAD:main
+          git push origin "dimensions-v${NEW}"
+          echo "released=true" >> $GITHUB_OUTPUT
+
   build-docs:
+    needs: release
+    # Skip when a release was just minted: the release commit's push triggers
+    # a fresh orchestrator run that will build and deploy with the new VERSION.
+    if: needs.release.outputs.released != 'true'
     uses: ./.github/workflows/build_publish_docs.yml

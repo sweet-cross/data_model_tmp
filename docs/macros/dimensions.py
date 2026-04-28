@@ -29,6 +29,7 @@ from registry import (  # noqa: E402
     DIMENSIONS_XLSX,
     DIMENSIONS_YAML_DIR,
     dimension_registry,
+    dimensions_version,
 )
 
 MAX_DEPTH = 3
@@ -144,16 +145,34 @@ def render_dimension(name: str) -> str:
     meta = load_contract(_yaml_path(item.contract_file))
     df = _load_sheet(item.sheet_name)
     roots, children_map = _build_tree(df)
+    version = dimensions_version()
     downloads_html = render_downloads(
-        workbook_dimension_downloads(name, _DIM_PAGE_DEPTH)
+        workbook_dimension_downloads(name, _DIM_PAGE_DEPTH, version=version)
     )
-    header_html = render_contract_header(name, meta)
+    header_html = render_contract_header(name, meta, version=version)
     tree_html = "".join(_render_node(r, children_map, 0) for r in roots)
     return (
         '<div class="contract-page" markdown="0">'
         f"{header_html}"
         f'<div class="dim-tree">{tree_html}</div>'
         f"{downloads_html}"
+        "</div>"
+    )
+
+
+def render_dimensions_version_badge() -> str:
+    """Macro: render a small bundle-version badge for the dimensions overview.
+
+    Returns:
+        HTML string (a single ``<div class="dimensions-version-badge">``).
+        Reads the bundle version from :func:`registry.dimensions_version`.
+    """
+    v = dimensions_version()
+    display = f"v{v}" if v != "unversioned" else v
+    return (
+        '<div class="dimensions-version-badge">'
+        '<span class="dimensions-version-label">Dimension data bundle:</span> '
+        f"<code>{html.escape(display)}</code>"
         "</div>"
     )
 
@@ -179,3 +198,4 @@ def register(env):
     """Register this module's macros with the mkdocs-macros Jinja environment."""
     env.macro(render_dimension)
     env.macro(render_dimension_index)
+    env.macro(render_dimensions_version_badge)

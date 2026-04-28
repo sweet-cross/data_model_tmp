@@ -83,13 +83,18 @@ def contract_type_label(meta: dict) -> str:
 # ---------------------------------------------------------------------------
 
 
-def render_contract_header(name: str, meta: dict) -> str:
+def render_contract_header(
+    name: str, meta: dict, *, version: str | None = None
+) -> str:
     """Render the Contract Name / Contract Type / Description block.
 
     Args:
         name: the registry key (used as a fallback when the yaml has no
             ``name`` field of its own).
         meta: parsed contract yaml.
+        version: optional bundle version string to display as an extra row.
+            Pass ``None`` (default) to omit. Used by dimension pages to show
+            the dimension data bundle version.
 
     Returns:
         HTML string containing a ``<dl class="contract-meta">``. The
@@ -103,6 +108,8 @@ def render_contract_header(name: str, meta: dict) -> str:
         ("Contract Name", f"<code>{html.escape(contract_name)}</code>"),
         ("Contract Type", html.escape(ctype)),
     ]
+    if version:
+        rows.append(("Version", f"<code>{html.escape(version)}</code>"))
     if desc:
         rows.append(("Description", html.escape(desc)))
     body = "".join(f"<dt>{label}</dt><dd>{value}</dd>" for label, value in rows)
@@ -389,6 +396,8 @@ def render_contract_page(
     page_depth: int,
     dim_registry: dict,
     extra_body_html: str = "",
+    *,
+    version: str | None = None,
 ) -> str:
     """Render the full HTML block for a single contract page.
 
@@ -423,7 +432,7 @@ def render_contract_page(
         pk = [pk]
 
     downloads_html = render_downloads(downloads)
-    header_html = render_contract_header(name, meta)
+    header_html = render_contract_header(name, meta, version=version)
     pk_html = render_primary_key(schema)
     fields_html = render_fields_table(
         fields,
@@ -492,6 +501,7 @@ def workbook_dimension_downloads(
     page_depth: int,
     *,
     include_csv: bool = True,
+    version: str | None = None,
 ) -> list[tuple[str, str]]:
     """Build the standard download-pill set for a workbook-backed dimension page.
 
@@ -517,13 +527,25 @@ def workbook_dimension_downloads(
         :func:`render_downloads` or :func:`render_contract_page`.
     """
     prefix = "../" * page_depth
+    suffix = f" — v{version}" if version else ""
     downloads = [
-        (f"{prefix}downloads/dimensions/{name}.yaml", "Download contract (yaml)"),
+        (
+            f"{prefix}downloads/dimensions/{name}.yaml",
+            "Download contract (yaml)",
+        ),
     ]
     if include_csv:
-        downloads.append((f"{prefix}downloads/dimensions/{name}.csv", "Download CSV"))
+        downloads.append(
+            (
+                f"{prefix}downloads/dimensions/{name}.csv",
+                f"Download CSV{suffix}",
+            )
+        )
     downloads.append(
-        (f"{prefix}downloads/dimensions.xlsx", "Download all dimensions (xlsx)")
+        (
+            f"{prefix}downloads/dimensions.xlsx",
+            f"Download all dimensions (xlsx){suffix}",
+        )
     )
     return downloads
 
