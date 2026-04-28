@@ -29,6 +29,7 @@ from _yaml_contract_hooks import (  # noqa: E402
 from registry import (  # noqa: E402
     DIMENSIONS_XLSX,
     DIMENSIONS_YAML_DIR,
+    dimensions_version,
     flexible_dimension_registry,
 )
 
@@ -57,11 +58,26 @@ def on_files(files, config):
 
 
 def on_post_build(config, **kwargs):
-    """Emit per-contract CSVs for flexible-dimension entries with show_data=True."""
+    """Emit per-contract CSVs for flexible-dimension entries with show_data=True.
+
+    Also re-emits them under ``downloads/dimensions/v<version>/`` when a
+    bundle version is set, mirroring the snapshot layout written by
+    :mod:`dimensions`.
+    """
     write_workbook_csvs(
         config,
         DIMENSIONS_XLSX,
         flexible_dimension_registry,
         _DOWNLOAD_SUBPATH,
+        include_item=lambda item: item.show_data,
+    )
+    version = dimensions_version()
+    if version == "unversioned":
+        return
+    write_workbook_csvs(
+        config,
+        DIMENSIONS_XLSX,
+        flexible_dimension_registry,
+        f"{_DOWNLOAD_SUBPATH}/v{version}",
         include_item=lambda item: item.show_data,
     )

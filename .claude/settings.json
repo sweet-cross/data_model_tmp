@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allowedTools": ["Read", "Write", "Glob"],
+    "blockedTools": ["Bash(rm *)"],
+    "allow": ["Bash(uv run mkdocs serve *)", "Bash(uv run mkdocs build *)"]
+  }
+}

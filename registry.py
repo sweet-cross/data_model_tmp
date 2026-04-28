@@ -1,12 +1,27 @@
 """The registry defines the data items that should appear in the documentation."""
 
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 
 DIMENSIONS_YAML_DIR = Path(__file__).resolve().parent / "data" / "dimensions"
 DIMENSIONS_XLSX = DIMENSIONS_YAML_DIR / "dimensions.xlsx"
+DIMENSIONS_VERSION_FILE = DIMENSIONS_YAML_DIR / "VERSION"
 ASSUMPTIONS_YAML_DIR = Path(__file__).resolve().parent / "data" / "assumptions"
 RESULTS_YAML_DIR = Path(__file__).resolve().parent / "data" / "results"
+
+
+@cache
+def dimensions_version() -> str:
+    """Return the current dimension data bundle version (e.g. ``0.1.0``).
+
+    Read from ``data/dimensions/VERSION``. Returns ``unversioned`` if the
+    file is missing or empty, so a freshly checked-out repo without the file
+    still builds.
+    """
+    if not DIMENSIONS_VERSION_FILE.exists():
+        return "unversioned"
+    return DIMENSIONS_VERSION_FILE.read_text().strip() or "unversioned"
 
 
 @dataclass

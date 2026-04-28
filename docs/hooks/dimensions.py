@@ -34,6 +34,7 @@ from registry import (  # noqa: E402
     DIMENSIONS_XLSX,
     DIMENSIONS_YAML_DIR,
     dimension_registry,
+    dimensions_version,
 )
 
 _SECTION_PATH = ["Dimensions", "Dimensions"]
@@ -79,10 +80,16 @@ def on_post_build(config, **kwargs):
     """Ship the shared workbook and per-dimension CSVs to the site.
 
     Produces:
-      - downloads/dimensions.xlsx — the original workbook copied verbatim.
+      - downloads/dimensions.xlsx — the original workbook copied verbatim
+        (canonical, latest-only path; existing bookmarks stay valid).
       - downloads/dimensions/<name>.csv — one CSV per registered dimension,
         emitted by the shared ``write_workbook_csvs`` helper (every entry
         is included, including ``index_only`` rows the overview links to).
+      - downloads/dimensions/v<version>/dimensions.xlsx and
+        downloads/dimensions/v<version>/<name>.csv — versioned snapshots
+        consumers can pin to. Mirrors the canonical layout under a single
+        version-prefixed directory. Skipped when no VERSION file is present
+        (returns the sentinel ``"unversioned"``).
     """
     site_dir = Path(config["site_dir"])
     downloads = site_dir / "downloads"
@@ -93,4 +100,20 @@ def on_post_build(config, **kwargs):
         DIMENSIONS_XLSX,
         dimension_registry,
         _DOWNLOAD_SUBPATH,
+    )
+
+    version = dimensions_version()
+    if version == "unversioned":
+        return
+
+    versioned_dir = downloads / _DOWNLOAD_SUBPATH / f"v{version}"
+    versioned_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(DIMENSIONS_XLSX, versioned_dir / "dimensions.xlsx")
+    # Re-emit per-dimension CSVs into the versioned subdir using the same
+    # helper, repointed at v<version>/.
+    write_workbook_csvs(
+        config,
+        DIMENSIONS_XLSX,
+        dimension_registry,
+        f"{_DOWNLOAD_SUBPATH}/v{version}",
     )

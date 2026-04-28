@@ -28,6 +28,7 @@ from registry import (  # noqa: E402
     DIMENSIONS_XLSX,
     DIMENSIONS_YAML_DIR,
     dimension_registry,
+    dimensions_version,
     flexible_dimension_registry,
 )
 
@@ -46,8 +47,9 @@ def render_flexible_dimension(name: str) -> str:
         )
     item = flexible_dimension_registry[name]
     meta = load_contract(str(DIMENSIONS_YAML_DIR / f"{item.contract_file}.yaml"))
+    version = dimensions_version()
     downloads = workbook_dimension_downloads(
-        name, _FLEX_DIM_PAGE_DEPTH, include_csv=item.show_data,
+        name, _FLEX_DIM_PAGE_DEPTH, include_csv=item.show_data, version=version,
     )
     extra = ""
     if item.show_data:
@@ -56,7 +58,7 @@ def render_flexible_dimension(name: str) -> str:
         extra = render_data_table(df, schema.get("fields") or [])
     return render_contract_page(
         name, meta, downloads, _FLEX_DIM_PAGE_DEPTH, dimension_registry,
-        extra_body_html=extra,
+        extra_body_html=extra, version=version,
     )
 
 

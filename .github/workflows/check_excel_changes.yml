@@ -46,6 +46,33 @@ jobs:
                   "data/dimensions/dimensions.xlsx" --base-ref "${{
                   github.base_ref }}" --output /tmp/diff_output.md
 
+            - name: Compute prospective version bump
+              if: steps.check-dimensions-changed.outputs.changed == 'true'
+              continue-on-error: true
+              run: |
+                  python .github/scripts/compute_version_bump.py \
+                      --workbook data/dimensions/dimensions.xlsx \
+                      --version-file data/dimensions/VERSION \
+                      --base-ref "origin/${{ github.base_ref }}" \
+                      --out /tmp/bump.json
+                  python - <<'PY'
+                  import json, pathlib
+                  b = json.load(open('/tmp/bump.json'))
+                  if b['no_op']:
+                      banner = "**Version bump:** none (no qualifying data changes)\n"
+                  else:
+                      banner = (
+                          f"**Version bump:** `{b['old_version']}` → "
+                          f"`{b['new_version']}` "
+                          f"(**{b['effective_level'].upper()}**"
+                          + (f", classified as {b['level'].upper()})" if b['effective_level'] != b['level'] else ")")
+                          + "\n"
+                      )
+                  p = pathlib.Path('/tmp/diff_output.md')
+                  existing = p.read_text() if p.exists() else ''
+                  p.write_text(banner + '\n' + existing)
+                  PY
+
             - name: Post diff as PR comment
               uses: actions/github-script@v9
               with:
