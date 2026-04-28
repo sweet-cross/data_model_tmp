@@ -108,6 +108,17 @@ jobs:
           git push origin "dimensions-v${NEW}"
           echo "released=true" >> $GITHUB_OUTPUT
 
+      - name: Create GitHub Release
+        if: steps.do-release.outputs.released == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -c "import json,pathlib; pathlib.Path('/tmp/release-notes.md').write_text(json.load(open('/tmp/bump.json'))['summary_markdown'])"
+          NEW="${{ steps.bump.outputs.new_version }}"
+          gh release create "dimensions-v${NEW}" \
+              --title "Dimension data v${NEW}" \
+              --notes-file /tmp/release-notes.md
+
   build-docs:
     needs: release
     # Skip when a release was just minted: the release commit's push triggers
