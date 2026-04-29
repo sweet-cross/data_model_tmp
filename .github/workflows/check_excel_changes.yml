@@ -58,16 +58,28 @@ jobs:
                   python - <<'PY'
                   import json, pathlib
                   b = json.load(open('/tmp/bump.json'))
+                  callout = {
+                      "major": "CAUTION",
+                      "minor": "WARNING",
+                      "patch": "NOTE",
+                      "none":  "NOTE",
+                  }[b['effective_level']]
+                  lines = ["## 🏷️ Version bump", "", f"> [!{callout}]"]
                   if b['no_op']:
-                      banner = "**Version bump:** none (no qualifying data changes)\n"
-                  else:
-                      banner = (
-                          f"**Version bump:** `{b['old_version']}` → "
-                          f"`{b['new_version']}` "
-                          f"(**{b['effective_level'].upper()}**"
-                          + (f", classified as {b['level'].upper()})" if b['effective_level'] != b['level'] else ")")
-                          + "\n"
+                      lines.append(
+                          f"> No qualifying data changes — version stays at `{b['old_version']}`."
                       )
+                  else:
+                      lines.append(
+                          f"> `{b['old_version']}` → `{b['new_version']}` — "
+                          f"**{b['effective_level'].upper()}**"
+                      )
+                      if b['effective_level'] != b['level']:
+                          lines.append(
+                              f"> Classified as **{b['level'].upper()}**, "
+                              "downgraded by pre-1.0 mapping."
+                          )
+                  banner = "\n".join(lines) + "\n"
                   p = pathlib.Path('/tmp/diff_output.md')
                   existing = p.read_text() if p.exists() else ''
                   p.write_text(banner + '\n' + existing)
