@@ -36,8 +36,6 @@ Idempotency: when the diff produces ``level == "none"`` the script reports
 the commit/tag step in that case.
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import sys

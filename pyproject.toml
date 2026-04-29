@@ -18,3 +18,7 @@ dependencies = [
 [tool.pytest.ini_options]
 pythonpath = [".github/scripts"]
 testpaths = ["tests"]
+
+[tool.pyright]
+extraPaths = [".github/scripts"]
+include = ["tests", ".github/scripts", "docs", "registry.py"]

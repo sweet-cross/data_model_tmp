@@ -1,7 +1,5 @@
 """Tests for .github/scripts/compute_version_bump.py."""
 
-from __future__ import annotations
-
 import pytest
 
 from compute_version_bump import (
@@ -74,16 +72,12 @@ def test_classify_sheet_removed():
 
 
 def test_classify_column_added():
-    level, _ = classify_diff(
-        _diff(s=_modified(columns_added=["new_col"]))
-    )
+    level, _ = classify_diff(_diff(s=_modified(columns_added=["new_col"])))
     assert level == "minor"
 
 
 def test_classify_column_removed():
-    level, _ = classify_diff(
-        _diff(s=_modified(columns_removed=["old_col"]))
-    )
+    level, _ = classify_diff(_diff(s=_modified(columns_removed=["old_col"])))
     assert level == "major"
 
 

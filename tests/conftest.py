@@ -1,7 +1,5 @@
 """Shared fixtures and helpers for the .github/scripts test suite."""
 
-from __future__ import annotations
-
 import pytest
 
 

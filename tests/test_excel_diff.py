@@ -1,7 +1,5 @@
 """Tests for .github/scripts/excel_diff.py."""
 
-from __future__ import annotations
-
 import subprocess
 from pathlib import Path
 
@@ -239,7 +237,7 @@ def test_sheet_diff_id_row_change_order_new_first_then_old_only(make_sheet):
     new = make_sheet(
         ["id", "label"],
         ["B", "b2"],  # changed
-        ["C", "c"],   # added
+        ["C", "c"],  # added
     )
     sd = _compute_sheet_diff_id(old, new)
     assert [(c["type"], c["key"]) for c in sd["row_changes"]] == [
@@ -365,7 +363,7 @@ def test_highlight_changed_cells_bolds_only_diff():
 
 def test_highlight_changed_cells_pads_short_row():
     headers = ["a", "b"]
-    old = ["1"]      # padded to ["1", ""]
+    old = ["1"]  # padded to ["1", ""]
     new = ["1", "Y"]
     old_line, new_line = highlight_changed_cells(headers, old, new)
     assert old_line == "| 1 | **** |"
@@ -425,8 +423,12 @@ def test_diff_workbooks_matches_render_of_compute(make_sheet):
 
 def _build_xlsx(path: Path) -> None:
     wb = Workbook()
-    ws1 = wb.active
-    ws1.title = "dim_demo"
+    # Workbook() seeds a default "Sheet"; replace it with named sheets so the
+    # type checker doesn't have to reason about the Optional `wb.active`.
+    for name in list(wb.sheetnames):
+        del wb[name]
+
+    ws1 = wb.create_sheet("dim_demo")
     ws1.append(["id", "label", "count"])
     ws1.append(["A", "Alpha", 1])
     ws1.append(["B", None, 2.5])  # blank label, float count
@@ -471,7 +473,9 @@ def test_get_workbook_at_ref_happy_path(tmp_path, monkeypatch):
     def fake_run(cmd, capture_output):
         assert cmd[:2] == ["git", "show"]
         assert cmd[2] == "origin/main:data/dimensions/dimensions.xlsx"
-        return subprocess.CompletedProcess(cmd, returncode=0, stdout=payload, stderr=b"")
+        return subprocess.CompletedProcess(
+            cmd, returncode=0, stdout=payload, stderr=b""
+        )
 
     monkeypatch.setattr(excel_diff.subprocess, "run", fake_run)
 
