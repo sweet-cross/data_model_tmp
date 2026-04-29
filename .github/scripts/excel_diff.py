@@ -23,7 +23,17 @@ from openpyxl import load_workbook
 
 
 def extract_workbook(path: str) -> dict[str, list[list[str]]]:
-    """Extract all sheets into a dict of {sheet_name: [[cell_values]]}."""
+    """Read every sheet of an xlsx file into a normalized dict-of-rows form.
+
+    Args:
+        path: filesystem path to the workbook to read.
+
+    Returns:
+        ``{sheet_name: rows}`` where each row is a ``list[str]`` of cell
+        values. ``None`` cells become ``""``; numeric cells become their
+        ``str(...)`` form. The first row is the header. Reads with
+        ``data_only=True`` so formula cells return their cached value.
+    """
     wb = load_workbook(path, data_only=True)
     data = {}
     for sheet_name in wb.sheetnames:
@@ -36,7 +46,18 @@ def extract_workbook(path: str) -> dict[str, list[list[str]]]:
 
 
 def get_workbook_at_ref(filepath: str, ref: str) -> dict[str, list[list[str]]]:
-    """Extract workbook content at an arbitrary git ref (branch, tag, sha)."""
+    """Read a workbook as it was at a given git ref via ``git show``.
+
+    Args:
+        filepath: repo-relative path to the xlsx file.
+        ref: any ref ``git show`` accepts (branch, tag, sha, ``origin/main``).
+
+    Returns:
+        Same shape as :func:`extract_workbook`. An empty dict if ``git show``
+        fails (e.g. the file did not exist at that ref) or any unexpected
+        exception is raised — callers treat an absent base as "everything in
+        the head workbook is new".
+    """
     try:
         result = subprocess.run(
             ["git", "show", f"{ref}:{filepath}"],
@@ -69,7 +90,17 @@ def find_id_column(headers: list[str]) -> int | None:
 
 
 def find_duplicates(rows: list[list[str]], id_col: int) -> list[str]:
-    """Return list of duplicate ID values."""
+    """Return ID values that appear more than once.
+
+    Args:
+        rows: data rows (no header). Rows shorter than ``id_col + 1`` are
+            silently ignored.
+        id_col: column index holding the ID.
+
+    Returns:
+        Each duplicate ID listed once, in the order it was first seen as a
+        repeat. Empty when every ID is unique.
+    """
     seen = {}
     duplicates = []
     for row in rows:
@@ -84,7 +115,18 @@ def find_duplicates(rows: list[list[str]], id_col: int) -> list[str]:
 
 
 def build_row_index(rows: list[list[str]], id_col: int) -> dict[str, list[str]]:
-    """Build a dict mapping ID value -> row data. Last occurrence wins."""
+    """Index data rows by their ID column for O(1) lookup.
+
+    Args:
+        rows: data rows (no header). Rows shorter than ``id_col + 1`` are
+            silently skipped.
+        id_col: column index holding the ID.
+
+    Returns:
+        ``{id_value: row}``. On duplicate IDs the last occurrence wins; the
+        diff caller guards against this by running :func:`find_duplicates`
+        first and short-circuiting to an ``error`` event.
+    """
     index = {}
     for row in rows:
         if id_col < len(row):
@@ -98,10 +140,20 @@ def _changed_column_names(
     old_row: list[str],
     new_row: list[str],
 ) -> list[str]:
-    """Return the names of columns whose value differs between old_row and new_row.
+    """Return the column names whose values differ between two rows.
 
-    Compares only on the intersection of headers — column add/remove is
-    reported separately at the sheet level.
+    Args:
+        old_headers: header row of the base sheet.
+        new_headers: header row of the head sheet.
+        old_row: a data row from the base sheet.
+        new_row: a data row from the head sheet.
+
+    Returns:
+        Column names (in head-sheet order) where the cell values differ.
+        Compared only on the *intersection* of the two header lists; column
+        add/remove is reported separately at the sheet level so it is not
+        double-counted here. Rows shorter than the matched index are treated
+        as having ``""`` in that column.
     """
     common = [h for h in new_headers if h in old_headers]
     changed = []
@@ -119,7 +171,30 @@ def _compute_sheet_diff_id(
     old_rows: list[list[str]],
     new_rows: list[list[str]],
 ) -> dict:
-    """Compute structured diff for an ID-keyed sheet.
+    """Compute the structured diff for a sheet that has an ``id`` column.
+
+    Args:
+        old_rows: rows of the base sheet (header + data).
+        new_rows: rows of the head sheet (header + data).
+
+    Returns:
+        One of:
+
+        * ``{"event": "unchanged"}`` — rows and headers match.
+        * ``{"event": "error", "error_type": "duplicate_ids", "old_duplicates": [...], "new_duplicates": [...]}``
+          — duplicate IDs make a meaningful join impossible.
+        * ``{"event": "modified", "mode": "id", "headers": [...],
+          "columns_added": [...], "columns_removed": [...], "row_changes": [...]}``
+          — each ``row_changes`` entry is one of:
+
+            * ``{"type": "added",   "key": id, "row": [...]}``
+            * ``{"type": "deleted", "key": id, "row": [...]}``
+            * ``{"type": "changed", "key": id, "old_row": [...], "new_row": [...],
+              "changed_columns": [...], "id_changed": bool}``
+
+          ``row_changes`` is ordered: ids in the new sheet first (in new
+          order), then ids only in the old sheet (deletions). The version
+          bump classifier and Markdown renderer both rely on this order.
 
     Caller must have determined that the (header) sheet has an ``id`` column.
     """
@@ -222,7 +297,21 @@ def _compute_sheet_diff_positional(
     old_rows: list[list[str]],
     new_rows: list[list[str]],
 ) -> dict:
-    """Fallback: positional diff when no ID column exists."""
+    """Compute the structured diff for a sheet with no ``id`` column.
+
+    Compares rows by 1-based row number rather than by a join key. Used as a
+    fallback for flat sheets that don't carry a primary key.
+
+    Args:
+        old_rows: rows of the base sheet (header + data).
+        new_rows: rows of the head sheet (header + data).
+
+    Returns:
+        Same shape as :func:`_compute_sheet_diff_id` but with ``"mode":
+        "positional"`` and each ``row_changes`` entry's ``key`` set to the
+        row number (1 = first data row). ``id_changed`` is always ``False``
+        here since there is no primary key.
+    """
     old_headers = old_rows[0] if old_rows else []
     new_headers = new_rows[0] if new_rows else []
     headers_for_render = old_headers or new_headers
@@ -271,19 +360,34 @@ def compute_diff(
     old_data: dict[str, list[list[str]]],
     new_data: dict[str, list[list[str]]],
 ) -> dict:
-    """Compute a structured per-sheet diff.
+    """Compute a structured per-sheet diff between two workbooks.
 
-    Returns ``{"sheets": {<name>: <sheet_diff>}, "has_errors": bool}``.
+    The structured shape this returns is the API surface consumed by
+    :mod:`compute_version_bump` and asserted by the test suite.
 
-    Sheet diff events:
-      - ``added``    — sheet exists in new but not old
-      - ``removed``  — sheet exists in old but not new
-      - ``unchanged`` — present on both sides, no differences
-      - ``error``    — validation error (e.g. duplicate IDs); ``error_type`` set
-      - ``modified`` — present on both sides with differences. Carries
-        ``mode`` (``id`` or ``positional``), ``headers``, ``columns_added``,
-        ``columns_removed``, and ``row_changes`` (ordered list of
-        ``{type, key, ...}`` entries).
+    Args:
+        old_data: workbook from the base ref, as produced by
+            :func:`extract_workbook`.
+        new_data: workbook from the head ref, same shape.
+
+    Returns:
+        ``{"sheets": {sheet_name: sheet_diff}, "has_errors": bool}``.
+        ``has_errors`` is ``True`` iff at least one sheet diff has
+        ``event == "error"``. Sheet diff events:
+
+        * ``added`` — sheet exists in new but not old.
+        * ``removed`` — sheet exists in old but not new.
+        * ``unchanged`` — present on both sides, no differences.
+        * ``error`` — validation error (e.g. duplicate IDs); ``error_type``
+          is set.
+        * ``modified`` — present on both sides with differences; carries
+          ``mode`` (``id`` or ``positional``), ``headers``,
+          ``columns_added``, ``columns_removed``, and ``row_changes``.
+
+        Sheets keyed by an ``id`` column take the ID-join path
+        (:func:`_compute_sheet_diff_id`); sheets without an ``id`` column
+        fall back to the positional path
+        (:func:`_compute_sheet_diff_positional`).
     """
     sheets: dict[str, dict] = {}
     has_errors = False
@@ -472,7 +576,11 @@ def diff_workbooks(
     return render_markdown(compute_diff(old_data, new_data))
 
 
-def main():
+def main() -> None:
+    """CLI entry: diff each ``--files`` xlsx against ``origin/<base-ref>`` and
+    write the rendered Markdown report to ``--output``. Exits 1 if any sheet
+    triggered a validation error (a ``❌`` marker is present in the output).
+    """
     parser = argparse.ArgumentParser(
         description="Diff Excel files between git branches"
     )

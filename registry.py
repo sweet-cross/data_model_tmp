@@ -26,12 +26,29 @@ def dimensions_version() -> str:
 
 @dataclass
 class DimensionRegistryItem:
+    """Registry entry for a hierarchical dimension backed by a workbook sheet.
+
+    Each entry maps a contract name (the registry key) to its yaml metadata
+    file (``contract_file``) and its data sheet inside the shared dimensions
+    workbook (``sheet_name``). The two are usually identical; keeping them
+    separate lets a contract reference a sheet whose name has diverged from
+    the contract.
+
+    Attributes:
+        contract_file: stem of the yaml metadata file under
+            ``data/dimensions/`` (without the ``.yaml`` extension).
+        sheet_name: name of the sheet inside ``dimensions.xlsx`` that holds
+            the rows for this dimension.
+        index_only: when ``True`` the dimension appears in the overview
+            table only — no nav entry and no per-dimension page are
+            generated. The CSV is still written to
+            ``/downloads/dimensions/`` so the overview row can still point
+            at data. Use this for dimensions too large to render as a card
+            tree (e.g. ISO regions).
+    """
+
     contract_file: str
     sheet_name: str
-    # When True the dimension appears in the overview table only: no nav entry
-    # and no per-dimension page are generated. The CSV is still written to
-    # /downloads/dimensions/ so the overview row can still point at data.
-    # Use this for dimensions too large to render as a card tree (e.g. ISO regions).
     index_only: bool = False
 
 

@@ -60,7 +60,37 @@ LEVEL_RANK = {"none": 0, "patch": 1, "minor": 2, "major": 3}
 
 
 def classify_diff(diff: dict) -> tuple[str, list[str]]:
-    """Walk the structured diff and return (level, summary_lines)."""
+    """Classify a structured workbook diff into a SemVer bump level.
+
+    Walks every sheet diff produced by :func:`excel_diff.compute_diff` and
+    runs each change through the rule table from the module docstring. The
+    final level is the *highest* level any individual change triggered
+    (ranked via :data:`LEVEL_RANK`); each change also adds one bullet line
+    to the summary.
+
+    Per-row changes (``ctype == "changed"``) are evaluated in this order:
+
+    1. ``id_changed`` set → MAJOR (primary-key change).
+    2. ``changed_columns`` is a non-empty subset of :data:`PATCH_COLUMNS`
+       (``label`` / ``description``) → PATCH.
+    3. Otherwise → MINOR (the "structural change" branch). An empty
+       ``changed_columns`` list (cells differ but no header overlap)
+       collapses into the MINOR branch with detail "columns differ".
+
+    Sheets with ``event == "error"`` (e.g. duplicate IDs) contribute
+    nothing to either the level or the summary — the workflow surfaces
+    those separately and fails the job.
+
+    Args:
+        diff: structured diff in the shape produced by
+            :func:`excel_diff.compute_diff`.
+
+    Returns:
+        ``(level, summary)`` where ``level`` is one of ``"none"``,
+        ``"patch"``, ``"minor"``, ``"major"``, and ``summary`` is a list
+        of Markdown bullets like ``"- [MAJOR] `dim_building`: row `B01`
+        deleted"``.
+    """
     level = "none"
     summary: list[str] = []
 
@@ -111,6 +141,12 @@ def classify_diff(diff: dict) -> tuple[str, list[str]]:
 
 
 def parse_version(s: str) -> tuple[int, int, int]:
+    """Parse a ``"MAJOR.MINOR.PATCH"`` string into a 3-tuple of ints.
+
+    Surrounding whitespace is tolerated. Raises :class:`ValueError` if the
+    string does not have exactly three dot-separated components or any
+    component is not an integer.
+    """
     parts = s.strip().split(".")
     if len(parts) != 3:
         raise ValueError(f"Invalid version string: {s!r}")
@@ -118,13 +154,29 @@ def parse_version(s: str) -> tuple[int, int, int]:
 
 
 def fmt_version(v: tuple[int, int, int]) -> str:
+    """Format a ``(major, minor, patch)`` tuple as ``"MAJOR.MINOR.PATCH"``."""
     return f"{v[0]}.{v[1]}.{v[2]}"
 
 
 def apply_bump(
     version: tuple[int, int, int], level: str, pre_1_0_mapping: bool
 ) -> tuple[tuple[int, int, int], str]:
-    """Return (new_version, effective_level) given the raw classification."""
+    """Apply a classified bump to a SemVer triple.
+
+    Args:
+        version: current ``(major, minor, patch)``.
+        level: raw classification from :func:`classify_diff` —
+            ``"none"`` / ``"patch"`` / ``"minor"`` / ``"major"``.
+        pre_1_0_mapping: when ``True`` *and* ``major == 0``, downgrade
+            MAJOR → MINOR and MINOR → PATCH before applying. This keeps
+            the bundle in 0.x while the schema is unstable. PATCH and
+            ``"none"`` are unaffected. Above 0.x the flag has no effect.
+
+    Returns:
+        ``(new_version, effective_level)`` where ``effective_level`` is
+        the level that actually drove the bump (post-mapping). Reporting
+        both lets the PR comment surface "MAJOR, downgraded to MINOR".
+    """
     major, minor, patch = version
     eff = level
     if pre_1_0_mapping and major == 0:
@@ -142,12 +194,22 @@ def apply_bump(
 
 
 def read_version(path: Path) -> str:
+    """Read a VERSION file, returning ``"0.0.0"`` when absent or blank.
+
+    A missing, empty, or whitespace-only file is treated as the seed
+    ``"0.0.0"`` so a fresh checkout without the file still bumps cleanly.
+    """
     if not path.exists():
         return "0.0.0"
     return path.read_text().strip() or "0.0.0"
 
 
 def main() -> None:
+    """CLI entry: diff the workbook against ``--base-ref`` (or
+    ``--base-workbook``), classify the changes, and emit a JSON record
+    describing the bump. See the module docstring for the JSON shape and
+    rule table.
+    """
     parser = argparse.ArgumentParser(
         description="Compute SemVer bump for the dimension data bundle."
     )
