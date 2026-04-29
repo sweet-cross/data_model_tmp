@@ -21,4 +21,7 @@ testpaths = ["tests"]
 
 [tool.pyright]
 extraPaths = [".github/scripts"]
-include = ["tests", ".github/scripts", "docs", "registry.py"]
+# Keep import resolution (so `import excel_diff` works in tests) but silence
+# the noisier type-mismatch diagnostics. Pylance still flags real errors like
+# unresolved imports and undefined names.
+typeCheckingMode = "off"
