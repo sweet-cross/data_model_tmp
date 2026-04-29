@@ -19,7 +19,7 @@ explicitly listed in ``mkdocs.yml``).
 """
 
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Protocol, TypeVar
 
 import pandas as pd
 import yaml
@@ -163,13 +163,23 @@ def inject_stub_files_and_downloads(
     return files
 
 
+class _WorkbookRegistryItem(Protocol):
+    """Structural type for registry items backed by a workbook sheet."""
+
+    @property
+    def sheet_name(self) -> str: ...
+
+
+T = TypeVar("T", bound=_WorkbookRegistryItem)
+
+
 def write_workbook_csvs(
     config,
     xlsx_path: Path,
-    registry: dict,
+    registry: dict[str, T],
     download_subpath: str,
     *,
-    include_item: Callable[[object], bool] | None = None,
+    include_item: Callable[[T], bool] | None = None,
 ) -> None:
     """Emit one CSV per registry entry sourced from a shared Excel workbook.
 
