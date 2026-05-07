@@ -2,8 +2,8 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_carbon_emissions
-title: Result submission for the CROSS2025 scenario runs - Carbon emissions
-description: Carbon emissions as submitted under the CROSS2025 scenario runs
+title: Carbon emissions
+description: Carbon emissions by year, end-use sector, model and scenario. Result of scenario runs.
 contract_type: ValueVariable
 
 # ----------------------------------------------------------------------------

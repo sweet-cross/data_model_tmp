@@ -3,8 +3,8 @@
 # ----------------------------------------------------------------------------
 name: scenass_space_heating_useful_energy_demand
 title: Useful energy demand for space heating
-description: |
-  Useful energy demand for space heating by end-use sector used as assumptions
+description: >
+  Useful energy demand for space heating by end-use sector, year and variant. Used as assumptions
   for scenario runs.
 
 contract_type: ValueVariable

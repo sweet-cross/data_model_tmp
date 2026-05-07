@@ -3,10 +3,10 @@
 # ----------------------------------------------------------------------------
 name: scenass_population
 title: Population
-description: |
-  Population projections used as assumptions for scenario runs.
-
+description: >
+  Population projections by year and variant. Used as assumptions for scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

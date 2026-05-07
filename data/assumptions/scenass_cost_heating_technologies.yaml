@@ -4,10 +4,9 @@
 name: scenass_cost_heating_technologies
 title: Investment cost of heating technologies
 description: >
-  Investment cost data for heating technologies
-  used as assumptions for scenario runs.
-
+  Investment cost data for heating technologies by technology, variant and year. Used as assumptions for scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

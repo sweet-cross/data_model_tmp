@@ -3,11 +3,10 @@
 # ----------------------------------------------------------------------------
 name: scenass_cost_generation_technologies
 title: Investment cost of generation technologies
-description: |
-  Investment cost data for electricity generation technologies
-  used as assumptions for scenario runs.
-
+description: >
+  Investment cost data for electricity generation technologies by technology, variant and year. Used as assumptions for scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------
@@ -93,7 +92,7 @@ tableschema:
     - name: value
       type: number
       title: Generation Technology Investment Cost
-      description: |
+      description: >
         Generation technology investment cost for the year
       constraints:
         required: true

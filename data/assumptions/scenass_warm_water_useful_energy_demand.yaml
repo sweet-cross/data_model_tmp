@@ -2,11 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: scenass_warm_water_useful_energy_demand
-title: Useful energy demand for warm water
-description: |
-  Useful energy demand for warm water by end-use sector used as assumptions
+title: Useful energy demand for hot water
+description: >
+  Useful energy demand for hot water by end-use sector, year and variant. Used as assumptions
   for scenario runs.
-
+  
 contract_type: ValueVariable
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
