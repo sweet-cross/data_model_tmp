@@ -2,11 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_installed_capacity
-title: Result submission for the CROSS 2025 scenario runs - Installed capacity supply
-description: |
-  Installed capacity of electricity generation technologies as submitted under the CROSS 2025 scenario runs
-
+title: Installed capacity of electricity generation technologies
+description: >
+  Installed capacity of electricity generation technologies by year, technology, model and scenario. Results of scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

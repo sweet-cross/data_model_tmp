@@ -2,11 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_electricity_supply_monthly
-title: Result submission for the scenario runs - Monthly Electricity supply
-description: |
-  Monthly electricity supply as submitted
-
+title: Monthly electricity supply
+description: >
+  Monthly electricity supply by year, technology, model and scenario. Result of scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

@@ -2,11 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_liquids_supply
-title: Result submission - Liquid fuels supply
+title: Liquid fuels supply
 description: >
-  Liquid fuels supply as submitted from scenario runs
-
+  Liquid fuels supply by year, technology, model and scenario. Results of scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

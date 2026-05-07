@@ -2,8 +2,9 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_electricity_consumption_monthly
-title: Result submission for the scenario runs - Monthly Electricity consumption
-description: Monthly electricity consumption as submitted
+title: Monthly electricity consumption
+description: >
+  Monthly electricity consumption by year, end-use, model and scenario. Result of scenario runs.
 contract_type: ValueVariable
 
 # ----------------------------------------------------------------------------

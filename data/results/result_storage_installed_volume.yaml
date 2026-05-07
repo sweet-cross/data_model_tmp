@@ -2,8 +2,9 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_storage_installed_volume
-title: Result submission - Installed storage volume
-description: Installed storage size
+title: Installed storage volume
+description: >
+  Installed storage volume of storage technologies by year, technology, model and scenario. Results of scenario runs.
 contract_type: ValueVariable
 
 # ----------------------------------------------------------------------------

@@ -2,14 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_freight_road_fec
-title: >
-  Result submission - Freight road transport final
-  energy consumption (FEC)
+title: Freight road transport final energy consumption (FEC)
 description: >
-  Final energy consumption of freight transport as submitted from scenario
-  runs
-
+  Final energy consumption of freight road transport by year, fuel, model and scenario. Result of scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

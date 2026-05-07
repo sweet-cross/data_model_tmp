@@ -2,11 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_h2_fec
-title: Result submission - Hydrogen final energy consumption (FEC)
+title: Hydrogen final energy consumption (FEC)
 description: >
-  Hydrogen final energy consumption as submitted from scenario runs
-
+  Hydrogen final energy consumption by year, end-use, model and scenario. Result of scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------
