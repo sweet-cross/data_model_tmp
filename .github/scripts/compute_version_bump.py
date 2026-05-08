@@ -18,7 +18,7 @@ classifies every change against the bump rules, and prints a JSON record:
 
 Rule table:
 
-    label / description change           PATCH
+    label / description / color change   PATCH
     parent_id / level change             MINOR
     new row                              MINOR
     new sheet (new dimension)            MINOR
@@ -54,7 +54,7 @@ from excel_diff import (  # noqa: E402  (sys.path tweak above)
 # *only* changed columns are within this set bumps PATCH; anything else
 # (parent_id, level, schema-defined columns of flexible dimensions) bumps
 # MINOR.
-PATCH_COLUMNS: frozenset[str] = frozenset({"label", "description"})
+PATCH_COLUMNS: frozenset[str] = frozenset({"label", "description", "color"})
 
 LEVEL_RANK = {"none": 0, "patch": 1, "minor": 2, "major": 3}
 
@@ -72,7 +72,7 @@ def classify_diff(diff: dict) -> tuple[str, list[str]]:
 
     1. ``id_changed`` set → MAJOR (primary-key change).
     2. ``changed_columns`` is a non-empty subset of :data:`PATCH_COLUMNS`
-       (``label`` / ``description``) → PATCH.
+       (``label`` / ``description`` / ``color``) → PATCH.
     3. Otherwise → MINOR (the "structural change" branch). An empty
        ``changed_columns`` list (cells differ but no header overlap)
        collapses into the MINOR branch with detail "columns differ".

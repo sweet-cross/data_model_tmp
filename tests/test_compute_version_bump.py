@@ -116,6 +116,27 @@ def test_classify_row_changed_label_and_description_is_patch():
     assert level == "patch"
 
 
+def test_classify_row_changed_color_only_is_patch():
+    level, _ = classify_diff(
+        _diff(s=_modified(row_changes=[_row_changed("B01", ["color"])]))
+    )
+    assert level == "patch"
+
+
+def test_classify_row_changed_label_and_color_is_patch():
+    level, _ = classify_diff(
+        _diff(s=_modified(row_changes=[_row_changed("B01", ["label", "color"])]))
+    )
+    assert level == "patch"
+
+
+def test_classify_row_changed_mixed_color_and_parent_id_is_minor():
+    level, _ = classify_diff(
+        _diff(s=_modified(row_changes=[_row_changed("B01", ["color", "parent_id"])]))
+    )
+    assert level == "minor"
+
+
 def test_classify_row_changed_parent_id_is_minor():
     level, _ = classify_diff(
         _diff(s=_modified(row_changes=[_row_changed("B01", ["parent_id"])]))
