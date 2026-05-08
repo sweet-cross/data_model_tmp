@@ -4,7 +4,7 @@
 name: result_total_system_costs
 title: Result submission for the CROSS 2025 scenario runs - Total annual system costs
 description: >
-  Total annual system costs submitted under the CROSS2025 scenario runs
+  Total annual system costs by year, model and scenario. Result of scenario runs.
 
 contract_type: ValueVariable
 # ----------------------------------------------------------------------------

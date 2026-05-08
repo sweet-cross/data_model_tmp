@@ -2,8 +2,9 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_electricity_consumption
-title: Result submission - Electricity consumption
-description: Electricity consumption as submitted from scenario runs
+title: Annual electricity consumption
+description: >
+  Annual electricity consumption by year, end-use, model and scenario. Result of scenario runs.
 contract_type: ValueVariable
 
 # ----------------------------------------------------------------------------

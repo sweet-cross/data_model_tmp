@@ -2,13 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_process_heat_energy_production
-title: >
-  Result submission - Process heat production
+title: Process heat useful energy production
 description: >
-  Useful energy production of process heat as submitted from scenario
-  scenario runs
-
+  Useful energy production of process heat by year, technology, model and scenario. Result of scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

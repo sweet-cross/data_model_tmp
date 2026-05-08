@@ -2,11 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_storage_output
-title: Result submission - Storage output
-description: |
-  Installed storage size
-
+title: Storage annual energy output
+description: >
+  Storage energy output by year, technology, model and scenario. 
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

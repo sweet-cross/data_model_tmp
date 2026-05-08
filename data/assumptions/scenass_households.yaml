@@ -3,9 +3,8 @@
 # ----------------------------------------------------------------------------
 name: scenass_households
 title: Number of Households
-description: |
-  Household data used as assumptions for scenario runs.
-
+description: >
+  Number of households by year and variant. Used as assumptions for scenario runs.
 contract_type: ValueVariable
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----

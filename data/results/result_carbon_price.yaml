@@ -2,9 +2,9 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_carbon_price
-title: Result submission for the CROSS 2025 scenario runs - Carbon price
+title: Carbon price
 description: >
-  Carbon price (marginal cost) submitted under the CROSS2025 scenario runs
+  Carbon price (marginal cost) by year, model and scenario. Result of scenario runs.
 
 contract_type: ValueVariable
 # ----------------------------------------------------------------------------

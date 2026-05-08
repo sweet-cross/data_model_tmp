@@ -3,11 +3,10 @@
 # ----------------------------------------------------------------------------
 name: scenass_cost_storage_technologies
 title: Investment cost of storage technologies
-description: |
-  Investment cost data for storage technologies
-  used as assumptions for scenario runs.
-
+description: >
+  Investment cost data for storage technologies by technology, variant and year. Used as assumptions for scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

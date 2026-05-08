@@ -2,11 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_methane_consumption
-title: Result submission - Methane final energy consumption (FEC)
-description: |
-  Methane final energy consumption as submitted from scenario runs
-
+title: Methane final energy consumption (FEC)
+description: >
+  Methane final energy consumption by year, end-use, model and scenario. Result of scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

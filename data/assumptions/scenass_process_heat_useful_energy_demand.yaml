@@ -3,8 +3,8 @@
 # ----------------------------------------------------------------------------
 name: scenass_process_heat_useful_energy_demand
 title: Useful energy demand for process heat
-description: |
-  Useful energy demand for process heat by end-use sector used as assumptions
+description: >
+  Useful energy demand for process heat by end-use sector, year and variant. Used as assumptions
   for scenario runs.
 
 contract_type: ValueVariable

@@ -3,8 +3,8 @@
 # ----------------------------------------------------------------------------
 name: scenass_import_prices
 title: Fuel import price
-description: |
-  Import prices by fuel type, year, and country used as assumptions for scenario runs.
+description: >
+  Import prices by fuel type, year, and variant. Used as assumptions for scenario runs.
 
 contract_type: ValueVariable
 # ----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ tableschema:
     - name: value
       type: number
       title: Import Price
-      description: Import price for the specified year and country.
+      description: Import price for the specified year and variant.
       constraints:
         required: true
         minimum: 0

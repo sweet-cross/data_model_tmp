@@ -3,11 +3,10 @@
 # ----------------------------------------------------------------------------
 name: scenass_freight_transport_useful_energy_demand
 title: Useful energy demand in freight transport
-description: |
-  Useful energy demand in freight transport by transport mode, year, and country
-  used as assumptions for scenario runs.
-
+description: >
+  Useful energy demand in freight transport by transport mode, year, and variant. Used as assumptions for scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------
@@ -107,7 +106,7 @@ tableschema:
       type: number
       title: Demand for Freight Transport
       description: |
-        Demand for freight transport in the specified transport mode, year, and country.
+        Demand for freight transport in the specified transport mode, year, and variant.
       constraints:
         required: true
         minimum: 0

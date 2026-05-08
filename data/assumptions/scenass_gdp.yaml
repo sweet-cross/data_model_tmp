@@ -3,7 +3,8 @@
 # ----------------------------------------------------------------------------
 name: scenass_gdp
 title: Gross Domestic Product (GDP)
-description: GDP data used as assumptions for scenario runs.
+description: >
+  Gross Domestic Product (GDP) by year used as assumptions for scenario runs.
 contract_type: ValueVariable
 
 # ----------------------------------------------------------------------------

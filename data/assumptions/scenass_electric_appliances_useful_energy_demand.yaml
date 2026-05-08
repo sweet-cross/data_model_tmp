@@ -3,11 +3,10 @@
 # ----------------------------------------------------------------------------
 name: scenass_electric_appliances_useful_energy_demand
 title: Useful energy demand of electric appliances
-description: |
-  Electricity demand from electric appliances and motors by end-used sector, year, and
-  country used as assumptions for scenario runs.
-
+description: >
+  Useful energy demand from electric appliances and motors by end-used sector, year, and variant. Used as assumptions for scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------
@@ -114,10 +113,10 @@ tableschema:
 
     - name: value
       type: number
-      title: Electricity Demand by Electric Appliances
+      title: Useful Energy Demand by Electric Appliances
       description: |
-        Demand for electricity by electric appliances in the specified end-use sector,
-        year, and country.
+        Useful energy demand from electric appliances and motors in the specified end-use sector,
+        year, and variant.
       constraints:
         required: true
         minimum: 0

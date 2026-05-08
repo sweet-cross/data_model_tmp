@@ -2,14 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_passenger_road_private_fec
-title: >
-  Result submission -
-  Passenger road private transport final energy consumption (FEC)
+title: Passenger road private transport final energy consumption (FEC)
 description: >
-  Final energy consumption of passenger road private transport as submitted from scenario
-  runs
-
+  Final energy consumption of passenger road private transport by year, fuel, model and scenario. Result of scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

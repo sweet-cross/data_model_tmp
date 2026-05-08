@@ -3,10 +3,10 @@
 # ----------------------------------------------------------------------------
 name: scenass_biomass_potential
 title: Biomass Potential
-description: |
-  Biomass potentials by biomass type used as assumptions for scenario runs.
-
+description: >
+  Biomass potentials by biomass type used and year. Used as assumptions for scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------
@@ -102,7 +102,7 @@ tableschema:
     - name: value
       type: number
       title: Biomass Potential Value
-      description: |
+      description: >
         The potential biomass value for the specified resource, year, and country.
         This value is used in scenario analyses to assess biomass potential.
       constraints:

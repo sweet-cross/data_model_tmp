@@ -52,3 +52,10 @@ tableschema:
     - name: description
       type: string
       description: Explanation and documentation of a single element
+
+    - name: color
+      type: string
+      description: Hex color used in graphs etc. to denote the element
+      constraints:
+        maxLength: 7
+        pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"

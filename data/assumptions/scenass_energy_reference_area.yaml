@@ -3,9 +3,8 @@
 # ----------------------------------------------------------------------------
 name: scenass_energy_reference_area
 title: Energy Reference Area
-description: |
-  Energy reference area by sector, year, building type and age
-  used as assumptions for scenario runs.
+description: >
+  Energy reference area by sector, year, building type and age. Used as assumptions for scenario runs.
 
 contract_type: ValueVariable
 # ----------------------------------------------------------------------------

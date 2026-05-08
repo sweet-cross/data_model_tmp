@@ -2,12 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_district_heat_energy_production
-title: Result submission - District Heat production
+title: District Heat useful energy production
 description: >
-  Useful energy production of distric heat as submitted from scenario
-  runs
-
+  Useful energy production of distric heat by year, technology, model and scenario. Result of scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

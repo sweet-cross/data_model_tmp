@@ -3,10 +3,10 @@
 # ----------------------------------------------------------------------------
 name: scenass_aviation_fuel_demand
 title: Aviation Fuel Demand
-description: |
-  Aviation fuel demand data used as assumptions for scenario runs.
-
+description: >
+  Aviation fuel demand data by year and variant. Used as assumptions for scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

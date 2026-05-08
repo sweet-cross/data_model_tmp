@@ -2,12 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_liquids_consumption
-title: Result submission - Liquid fuels final energy consumption (FEC)
+title: Liquid fuels final energy consumption (FEC)
 description: >
-  Liquid fuels final energy consumption as submitted from scenario
-  runs
-
+  Liquid fuels final energy consumption by year, end-use, model and scenario. Result of scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------

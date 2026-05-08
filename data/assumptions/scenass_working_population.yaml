@@ -3,8 +3,8 @@
 # ----------------------------------------------------------------------------
 name: scenass_working_population
 title: Working Population
-description: |
-  Working population projections used as assumptions for scenario runs.
+description: >
+  Working population projections by year and variant. Used as assumptions for scenario runs.
 
 contract_type: ValueVariable
 # ----------------------------------------------------------------------------

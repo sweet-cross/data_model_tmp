@@ -2,11 +2,11 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: result_electricity_supply
-title: Result submission - Electricity supply
+title: Annual electricity supply
 description: >
-  Electricity supply as submitted from scenario runs
-
+  Annual electricity supply by year, technology, model and scenario. Result of scenario runs.
 contract_type: ValueVariable
+
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------
