@@ -51,7 +51,7 @@ tableschema:
     - name: tyndp_scenario
       type: string
       title: TYNDP Scenario
-      description: Name of the TYNDP scenario this data is associated with
+      description: TYNDP scenario
 
     - name: tyndp_year
       type: integer
@@ -71,7 +71,7 @@ tableschema:
     - name: unit
       type: string
       title: Unit
-      description: Unit
+      description: Measurement unit of the reported value
       constraints:
         required: true
         maxLength: 16
@@ -79,7 +79,7 @@ tableschema:
     - name: year
       type: integer
       title: Year
-      description: Year of the data
+      description: Year to which the data value applies
       constraints:
         required: true
         minimum: 1900
@@ -87,7 +87,7 @@ tableschema:
 
     - name: value
       type: number
-      title: Net Transfer Capacity
+      title: Value
       description: Net transfer capacity in the specified unit
       constraints:
         required: true

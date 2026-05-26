@@ -30,7 +30,7 @@ tableschema:
       country,
       timestamp,
       unit,
-      sector,
+      end_use,
     ]
 
   foreignKeys:
@@ -49,7 +49,7 @@ tableschema:
         resource: dim_scenario
         fields: [group, name, variant]
 
-    - fields: sector
+    - fields: end_use
       reference:
         resource: dim_use_elec
         fields: id
@@ -61,35 +61,35 @@ tableschema:
     - name: model
       type: string
       title: Model
-      description: Name of the model producing the data
+      description: Model that produced the data
       constraints:
         required: true
 
     - name: scenario_group
       type: string
       title: Scenario Group
-      description: Name of the scenario group this data is associated with
+      description: Scenario group
       constraints:
         required: true
 
     - name: scenario_name
       type: string
       title: Scenario Name
-      description: Name of the specific scenario this data is associated with
+      description: Scenario name
       constraints:
         required: true
 
     - name: scenario_variant
       type: string
       title: Scenario Variant
-      description: Variant of the scenario, if applicable
+      description: Scenario variant
       constraints:
         required: true
 
-    - name: sector
+    - name: end_use
       type: string
-      title: End-use sector
-      description: Name of the end-use sector
+      title: End-use
+      description: End-use category
       constraints:
         required: true
 
@@ -104,14 +104,14 @@ tableschema:
     - name: timestamp
       type: datetime
       title: Timestamp
-      description: The timestamp
+      description: Date and time of the data value
       constraints:
         required: true
 
     - name: unit
       type: string
       title: Unit
-      description: Unit
+      description: Measurement unit of the reported value
       constraints:
         required: true
         enum: ["GW"]
@@ -119,8 +119,7 @@ tableschema:
     - name: value
       type: number
       title: Value
-      description: |
-        The value associated with the variable for the given scenario, model,
+      description: Hourly electricity consumption in the specified unit for the given country, timestamp, end-use, model, and scenario
       constraints:
         required: true
         minimum: 0

@@ -60,35 +60,35 @@ tableschema:
     - name: model
       type: string
       title: Model
-      description: Name of the model producing the data
+      description: Model that produced the data
       constraints:
         required: true
 
     - name: scenario_group
       type: string
       title: Scenario Group
-      description: Name of the scenario group this data is associated with
+      description: Scenario group
       constraints:
         required: true
 
     - name: scenario_name
       type: string
       title: Scenario Name
-      description: Name of the specific scenario this data is associated with
+      description: Scenario name
       constraints:
         required: true
 
     - name: scenario_variant
       type: string
       title: Scenario Variant
-      description: Variant of the scenario, if applicable
+      description: Scenario variant
       constraints:
         required: true
 
     - name: technology
       type: string
-      title: Technology
-      description: Name of the supply technology
+      title: Liquid Fuel Supply Technology
+      description: Liquid fuel supply technology
       constraints:
         required: true
 
@@ -103,14 +103,14 @@ tableschema:
     - name: year
       type: integer
       title: Year
-      description: The year the data refers to
+      description: Year to which the data value applies
       constraints:
         required: true
 
     - name: unit
       type: string
       title: Unit
-      description: Unit
+      description: Measurement unit of the reported value
       constraints:
         required: true
         enum: ["TWh"]
@@ -118,8 +118,7 @@ tableschema:
     - name: value
       type: number
       title: Value
-      description: |
-        The value associated with the variable for the given scenario, model,
+      description: Liquid fuels supply in the specified unit for the given country, year, technology, model, and scenario
       constraints:
         required: true
         minimum: 0
