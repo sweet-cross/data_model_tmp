@@ -56,17 +56,17 @@ tableschema:
     - name: scenario_group
       type: string
       title: Scenario Group
-      description: Group of scenarios this data is associated with
+      description: Scenario group
 
     - name: scenario_name
       type: string
       title: Scenario Name
-      description: Name of the specific scenario this data is associated with
+      description: Scenario name
 
     - name: scenario_variant
       type: string
       title: Scenario Variant
-      description: Variant of the scenario, if applicable
+      description: Scenario variant
 
     - name: fuel
       type: string
@@ -78,7 +78,7 @@ tableschema:
     - name: unit
       type: string
       title: Unit
-      description: Unit
+      description: Measurement unit of the reported value
       constraints:
         required: true
         maxLength: 16
@@ -94,7 +94,7 @@ tableschema:
     - name: year
       type: integer
       title: Year
-      description: Year of the data
+      description: Year to which the data value applies
       constraints:
         required: true
         minimum: 1900
@@ -102,8 +102,8 @@ tableschema:
 
     - name: value
       type: number
-      title: Import Price
-      description: Import price for the specified year and variant.
+      title: Value
+      description: Import price in the specified unit for the given scenario, scenario variant, fuel, country, and year
       constraints:
         required: true
         minimum: 0

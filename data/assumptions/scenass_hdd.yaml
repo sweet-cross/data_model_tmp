@@ -53,22 +53,22 @@ tableschema:
     - name: scenario_group
       type: string
       title: Scenario Group
-      description: Name of the scenario group this data is associated with
+      description: Scenario group
 
     - name: scenario_name
       type: string
       title: Scenario Name
-      description: Name of the specific scenario this data is associated with
+      description: Scenario name
 
     - name: scenario_variant
       type: string
       title: Scenario Variant
-      description: Variant of the scenario, if applicable
+      description: Scenario variant
 
     - name: year
       type: integer
       title: Year
-      description: Year of the data
+      description: Year to which the data value applies
       constraints:
         required: true
         minimum: 1900
@@ -84,7 +84,7 @@ tableschema:
 
     - name: value
       type: number
-      title: Heating Degree Days (HDD)
+      title: Value
       description: |
         Number of Heating Degree Days (HDD) for the specified year and country.
       constraints:

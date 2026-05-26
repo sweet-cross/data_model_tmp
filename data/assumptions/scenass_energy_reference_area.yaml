@@ -69,22 +69,22 @@ tableschema:
     - name: scenario_group
       type: string
       title: Scenario Group
-      description: Name of the scenario group this data is associated with
+      description: Scenario group
 
     - name: scenario_name
       type: string
       title: Scenario Name
-      description: Name of the specific scenario this data is associated with
+      description: Scenario name
 
     - name: scenario_variant
       type: string
       title: Scenario Variant
-      description: Variant of the scenario, if applicable
+      description: Scenario variant
 
     - name: unit
       type: string
       title: Unit
-      description: Unit
+      description: Measurement unit of the reported value
       constraints:
         required: true
         maxLength: 16
@@ -92,7 +92,7 @@ tableschema:
     - name: year
       type: integer
       title: Year
-      description: Year of the data
+      description: Year to which the data value applies
       constraints:
         required: true
         minimum: 1900
@@ -108,23 +108,23 @@ tableschema:
 
     - name: endusesector
       type: string
-      title: End Use Sector
-      description: End use sector for the data
+      title: End-use Sector
+      description: End-use sector (e.g. residential, commercial, industrial)
 
     - name: building
       type: string
       title: Building Type
-      description: Type of building for the data
+      description:  Building category associated with the data (e.g. single-family, multi-family, commercial)
 
     - name: age
       type: string
-      title: Age of Building
-      description: Age category of the building
+      title: Construction period
+      description: Period during which the building was constructed
 
     - name: value
       type: number
       title: Value
-      description: Value
+      description: Energy reference area (floor space) in the specified unit for the given scenario, scenario variant, country, year, end-use sector, building type, and age
       constraints:
         required: true
         minimum: 0
