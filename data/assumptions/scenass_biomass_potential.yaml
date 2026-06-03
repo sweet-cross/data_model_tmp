@@ -54,17 +54,17 @@ tableschema:
     - name: scenario_group
       type: string
       title: Scenario Group
-      description: Name of the scenario group this data is associated with
+      description: Scenario group
 
     - name: scenario_name
       type: string
       title: Scenario Name
-      description: Name of the specific scenario this data is associated with
+      description: Scenario name
 
     - name: scenario_variant
       type: string
       title: Scenario Variant
-      description: Variant of the scenario, if applicable
+      description: Scenario variant
 
     # enter the fields of the table (left year and country_id as example)
     - name: resource
@@ -85,7 +85,7 @@ tableschema:
     - name: unit
       type: string
       title: Unit
-      description: Unit
+      description: Measurement unit of the reported value
       constraints:
         required: true
         maxLength: 16
@@ -93,7 +93,7 @@ tableschema:
     - name: year
       type: integer
       title: Year
-      description: Year in which the biomass potential can be realized.
+      description: Year in which the biomass potential can be realized
       constraints:
         required: true
         minimum: 1900
@@ -101,10 +101,8 @@ tableschema:
 
     - name: value
       type: number
-      title: Biomass Potential Value
-      description: >
-        The potential biomass value for the specified resource, year, and country.
-        This value is used in scenario analyses to assess biomass potential.
+      title: Value
+      description: Biomass potential in the specified unit for the given scenario, scenario variant, resource, country, and year
       constraints:
         required: true
         minimum: 0

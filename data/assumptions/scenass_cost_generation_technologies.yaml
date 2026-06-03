@@ -47,23 +47,23 @@ tableschema:
     - name: scenario_group
       type: string
       title: Scenario Group
-      description: Name of the scenario group this data is associated with
+      description: Scenario group
 
     - name: scenario_name
       type: string
       title: Scenario Name
-      description: Name of the specific scenario this data is associated with
+      description: Scenario name
 
     - name: scenario_variant
       type: string
       title: Scenario Variant
-      description: Variant of the scenario, if applicable
+      description: Scenario variant
 
     # enter the fields of the table (left year and country_id as example)
     - name: technology
       type: string
       title: Generation Technology
-      description: Generation Technology used
+      description: Electricity generation technology
       constraints:
         required: true
 
@@ -75,7 +75,7 @@ tableschema:
     - name: unit
       type: string
       title: Unit
-      description: Unit
+      description: Measurement unit of the reported value
       constraints:
         required: true
         maxLength: 16
@@ -83,7 +83,7 @@ tableschema:
     - name: year
       type: integer
       title: Year
-      description: Year in which the installation takes place
+      description: Year to which the data value applies
       constraints:
         required: true
         minimum: 1900
@@ -91,9 +91,8 @@ tableschema:
 
     - name: value
       type: number
-      title: Generation Technology Investment Cost
-      description: >
-        Generation technology investment cost for the year
+      title: Value
+      description: Generation technology investment cost in the specified unit for the given scenario, scenario variant, technology, size, and year
       constraints:
         required: true
         minimum: 0
