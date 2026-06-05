@@ -1,11 +1,12 @@
 # ----------------------------------------------------------------------------
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
-name: result_carbon_emissions
-title: Carbon emissions
-description: Carbon emissions by year, end-use sector, model and scenario. Result of scenario runs.
-contract_type: ValueVariable
+name: result_total_system_costs
+title: Total annual system costs
+description: >
+  Total annual system costs by year, model and scenario. Result of scenario runs.
 
+contract_type: ValueVariable
 # ----------------------------------------------------------------------------
 #                ----- Frictionless Table Schema -----
 # ----------------------------------------------------------------------------
@@ -28,7 +29,6 @@ tableschema:
       country,
       year,
       unit,
-      end_use,
     ]
 
   foreignKeys:
@@ -42,15 +42,10 @@ tableschema:
         resource: dim_model
         fields: id
 
-    - fields: [scenario_group, scenario_name, scenario_variant]
+    - fields: [ scenario_group, scenario_name, scenario_variant ]
       reference:
         resource: dim_scenario
-        fields: [group, name, variant]
-
-    - fields: end_use
-      reference:
-        resource: dim_use_elec
-        fields: id
+        fields: [ group, name, variant ]
 
   # ----------------------------------------------------------------------------
   #                  FRICTIONLESS FIELDS/COLUMNS
@@ -84,13 +79,6 @@ tableschema:
       constraints:
         required: true
 
-    - name: end_use
-      type: string
-      title: End-use sector
-      description: End-use sector
-      constraints:
-        required: true
-
     - name: country
       type: string
       title: Country Code
@@ -112,13 +100,13 @@ tableschema:
       description: Measurement unit of the reported value
       constraints:
         required: true
-        enum: ["MtCO2"]
+        enum: [ "BCHF" ]
 
     - name: value
       type: number
       title: Value
-      description: Carbon emissions in the specified unit for the given country, year, end-use sector, model, and scenario
+      description: Total annual system costs in the specified unit for the given country, year, model, and scenario
       constraints:
         required: true
-        minimum: -30
-        maximum: 30
+        minimum: 0
+        maximum: 1500
