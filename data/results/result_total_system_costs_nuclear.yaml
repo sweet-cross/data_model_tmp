@@ -1,10 +1,11 @@
 # ----------------------------------------------------------------------------
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
-name: result_total_system_costs
+name: result_total_system_costs_nuclear
 title: Total annual system costs
 description: >
   Total annual system costs by year, model and scenario. Result of scenario runs.
+  The cost are stated annually but cumulative cost are allowed as well.
 
 contract_type: ValueVariable
 # ----------------------------------------------------------------------------
