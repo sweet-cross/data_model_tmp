@@ -1,0 +1,127 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: result_elec_supply_typical_day
+title: Hourly electricity supply
+description: >
+  Hourly electricity supply by hour, technology, model and scenario. Result of scenario runs.
+  Imports, exports and storage are represented as netted values.
+contract_type: ValueVariable
+
+# ----------------------------------------------------------------------------
+#                ----- Frictionless Table Schema -----
+# ----------------------------------------------------------------------------
+tableschema:
+
+  # ----------------------------------------------------------------------------
+  #                SEMANTIC FIELD DESCRIPTION
+  # ----------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------------
+  #                        FOREIGN KEY CONSTRAINTS
+  # ----------------------------------------------------------------------------
+  # A list of field names that are jointly unique. As it is an assumption table,
+  # it include the scenario information. E.g.
+  primaryKey:
+    [
+      model,
+      scenario_group,
+      scenario_name,
+      scenario_variant,
+      country,
+      timestamp,
+      unit,
+      technology,
+    ]
+
+  foreignKeys:
+    - fields: country
+      reference:
+        resource: dim_iso_region
+        fields: id
+
+    - fields: model
+      reference:
+        resource: dim_model
+        fields: id
+
+    - fields: [scenario_group, scenario_name, scenario_variant]
+      reference:
+        resource: dim_scenario
+        fields: [group, name, variant]
+
+    - fields: technology
+      reference:
+        resource: dim_tech_generation
+        fields: id
+
+  # ----------------------------------------------------------------------------
+  #                  FRICTIONLESS FIELDS/COLUMNS
+  # ----------------------------------------------------------------------------
+  fields:
+    - name: model
+      type: string
+      title: Model
+      description: Model that produced the data
+      constraints:
+        required: true
+
+    - name: scenario_group
+      type: string
+      title: Scenario Group
+      description: Scenario group
+      constraints:
+        required: true
+
+    - name: scenario_name
+      type: string
+      title: Scenario Name
+      description: Scenario name
+      constraints:
+        required: true
+
+    - name: scenario_variant
+      type: string
+      title: Scenario Variant
+      description: Scenario variant
+      constraints:
+        required: true
+
+    - name: technology
+      type: string
+      title: Generation Technology
+      description: Electricity generation technology
+      constraints:
+        required: true
+
+    - name: country
+      type: string
+      title: Country Code
+      description: ISO 3166-1 alpha-2 country code
+      constraints:
+        required: true
+        maxLength: 8
+
+    - name: timestamp
+      type: datetime
+      title: Timestamp
+      description: Date and time of the data value
+      constraints:
+        required: true
+
+    - name: unit
+      type: string
+      title: Unit
+      description: Measurement unit of the reported value
+      constraints:
+        required: true
+        enum: ["GW"]
+
+    - name: value
+      type: number
+      title: Value
+      description: Hourly electricity supply in the specified unit for the given country, timestamp, technology, model, and scenario
+      constraints:
+        required: true
+        minimum: 0
+        maximum: 1000
