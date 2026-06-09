@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
-name: result_electricity_consumption_monthly
+name: result_electricity_consumption_monthly_net
 title: Monthly electricity consumption
 description: >
   Monthly electricity consumption by year, end-use, model and scenario. Result of scenario runs.

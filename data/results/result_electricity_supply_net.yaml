@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
-name: result_electricity_supply
+name: result_electricity_supply_net
 title: Annual electricity supply
 description: >
   Annual electricity supply by year, technology, model and scenario. Result of scenario runs.

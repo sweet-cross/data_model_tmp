@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
-name: result_elec_supply_typical_day
+name: result_elec_supply_typical_day_net
 title: Hourly electricity supply
 description: >
   Hourly electricity supply by hour, technology, model and scenario. Result of scenario runs.

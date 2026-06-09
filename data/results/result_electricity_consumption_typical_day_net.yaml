@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
-name: result_elec_cons_typical_day
+name: result_elec_cons_typical_day_net
 title: Hourly electricity consumption
 description: >
   Hourly electricity consumption by hours, end-use, model and scenario. 
