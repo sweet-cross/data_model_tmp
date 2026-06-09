@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
-name: result_electricity_supply_monthly
+name: result_electricity_supply_monthly_net
 title: Monthly electricity supply
 description: >
   Monthly electricity supply by year, technology, model and scenario. Result of scenario runs.

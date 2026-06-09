@@ -109,4 +109,4 @@ tableschema:
       constraints:
         required: true
         minimum: 0
-        maximum: 100
+        maximum: 150
