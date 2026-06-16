@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
-name: result_electricity_consumption_net
+name: result_electricity_consumption_net_nuclear
 title: Annual electricity consumption
 description: >
   Annual electricity consumption by year, end-use, model and scenario. 
