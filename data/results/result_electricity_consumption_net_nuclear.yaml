@@ -1,0 +1,134 @@
+# ----------------------------------------------------------------------------
+#                         TABLE DESCRIPTION
+# ----------------------------------------------------------------------------
+name: result_electricity_consumption_net
+title: Annual electricity consumption
+description: >
+  Annual electricity consumption by year, end-use, model and scenario. 
+  Result of scenario runs. Imports, exports and storage are represented as netted
+  values. This is the nuclear version of the table existing as a work around for
+  the dimension mismatch. Specifically, it reports:
+  - freight_road = passenger + freight_road (and passenger and freight_road and below to zero)
+  - grid_losses = grid_losses + storage_losses (and storage_losses = 0)
+
+  So freight_road is all road transport and and grid_losses represents all 
+  losses in the electricity system. 
+
+contract_type: ValueVariable
+
+# ----------------------------------------------------------------------------
+#                ----- Frictionless Table Schema -----
+# ----------------------------------------------------------------------------
+tableschema:
+  # ----------------------------------------------------------------------------
+  #                SEMANTIC FIELD DESCRIPTION
+  # ----------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------------
+  #                        FOREIGN KEY CONSTRAINTS
+  # ----------------------------------------------------------------------------
+  # A list of field names that are jointly unique. As it is an assumption table,
+  # it include the scenario information. E.g.
+  primaryKey:
+    [
+      model,
+      scenario_group,
+      scenario_name,
+      scenario_variant,
+      country,
+      year,
+      unit,
+      end_use,
+    ]
+
+  foreignKeys:
+    - fields: country
+      reference:
+        resource: dim_iso_region
+        fields: id
+
+    - fields: model
+      reference:
+        resource: dim_model
+        fields: id
+
+    - fields: [scenario_group, scenario_name, scenario_variant]
+      reference:
+        resource: dim_scenario
+        fields: [group, name, variant]
+
+    - fields: end_use
+      reference:
+        resource: dim_use_elec
+        fields: id
+
+  # ----------------------------------------------------------------------------
+  #                  FRICTIONLESS FIELDS/COLUMNS
+  # ----------------------------------------------------------------------------
+  fields:
+    - name: model
+      type: string
+      title: Model
+      description: Model that produced the data
+      constraints:
+        required: true
+
+    - name: scenario_group
+      type: string
+      title: Scenario Group
+      description: Scenario group
+      constraints:
+        required: true
+
+    - name: scenario_name
+      type: string
+      title: Scenario Name
+      description: Scenario name
+      constraints:
+        required: true
+
+    - name: scenario_variant
+      type: string
+      title: Scenario Variant
+      description: Scenario variant
+      constraints:
+        required: true
+
+    - name: end_use
+      type: string
+      title: End-use
+      description: End-use category
+      constraints:
+        required: true
+
+    - name: country
+      type: string
+      title: Country Code
+      description: ISO 3166-1 alpha-2 country code
+      constraints:
+        required: true
+        maxLength: 8
+
+    - name: year
+      type: integer
+      title: Year
+      description: Year to which the data value applies
+      constraints:
+        required: true
+
+    - name: unit
+      type: string
+      title: Unit
+      description: Measurement unit of the reported value
+      constraints:
+        required: true
+        enum: ["TWh"]
+
+    - name: value
+      type: number
+      title: Value
+      description: Annual electricity consumption in the specified unit for the given country, year, end-use, model, and scenario
+      constraints:
+        required: true
+        minimum: 0
+        maximum: 1000
