@@ -6,6 +6,11 @@ dimension data bundle as a whole; see
 [docs/Dimensions/versioning.md](../../docs/Dimensions/versioning.md) for the
 bump-rule table and release process.
 
+## 0.2.2 — 2026-06-16
+
+- [PATCH] `dim_model`: row `calliope` semantic change (label)
+- [PATCH] `dim_model`: row `nexuse` semantic change (label)
+
 ## 0.2.1 — 2026-06-03
 
 - [PATCH] `dim_building`: row `commercial` semantic change (label, description)
