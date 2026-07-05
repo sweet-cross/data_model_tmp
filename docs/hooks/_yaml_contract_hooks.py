@@ -67,6 +67,7 @@ def inject_nav_entries(
     section_path: list[str],
     registry: dict,
     page_subpath: str,
+    strip_prefix: str | None = None,
 ):
     """Append one nav entry per registry item under a nested nav section.
 
@@ -79,8 +80,13 @@ def inject_nav_entries(
         registry: mapping of registry key → registry item. Only the keys are
             used here.
         page_subpath: URL prefix for the per-contract markdown pages, e.g.
-            ``"variables/assumptions"`` — each entry becomes
-            ``{name: f"{page_subpath}/{name}.md"}``.
+            ``"variables/assumptions"`` — each entry links to
+            ``f"{page_subpath}/{name}.md"``.
+        strip_prefix: when given, this prefix is dropped from the registry
+            key to produce the nav label (e.g. ``"result_"`` so
+            ``result_carbon_emissions`` shows as ``carbon_emissions``). The
+            link target still uses the full ``name``. Left as ``None`` for
+            registries with no shared prefix convention.
 
     Returns:
         The (possibly-mutated) config dict.
@@ -94,7 +100,8 @@ def inject_nav_entries(
         if children is None:
             return config
     for name in registry:
-        children.append({name: f"{page_subpath}/{name}.md"})
+        label = name.removeprefix(strip_prefix) if strip_prefix else name
+        children.append({label: f"{page_subpath}/{name}.md"})
     return config
 
 

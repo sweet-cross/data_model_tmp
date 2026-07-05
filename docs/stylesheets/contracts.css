@@ -32,7 +32,7 @@
   column-gap: 0.9rem;
   row-gap: 0.3rem;
   margin: 0 0 1.25rem;
-  font-size: 0.95em;
+  font-size: 0.85em;
 }
 .md-typeset .contract-meta dt,
 .contract-meta dt {
@@ -67,7 +67,11 @@
   font-size: 0.9em;
 }
 
-/* --- Download buttons --------------------------------------------------- */
+/* --- Download buttons ---------------------------------------------------
+   Uses --md-accent-fg-color rather than --md-primary-fg-color for
+   text/border/fill throughout this file: the site's light-mode header uses
+   Material's `white` primary swatch, so --md-primary-fg-color is literally
+   white and would render invisible against the (also white) page body. */
 .contract-downloads {
   display: flex;
   flex-wrap: wrap;
@@ -79,8 +83,8 @@
   display: inline-block;
   padding: 0.45rem 0.9rem;
   border-radius: 999px;
-  border: 1px solid var(--md-primary-fg-color);
-  color: var(--md-primary-fg-color);
+  border: 1px solid var(--md-accent-fg-color);
+  color: var(--md-accent-fg-color);
   background: transparent;
   font-size: 0.85em;
   font-weight: 500;
@@ -88,8 +92,8 @@
   transition: background 0.12s ease, color 0.12s ease;
 }
 .contract-download-btn:hover {
-  background: var(--md-primary-fg-color);
-  color: var(--md-primary-bg-color);
+  background: var(--md-accent-fg-color);
+  color: var(--md-accent-bg-color);
 }
 
 /* --- Overview tables (Name / Title / Description, sortable) ------------- */
@@ -127,6 +131,13 @@
 .md-typeset .contract-index-table tbody tr.contract-index-row,
 .contract-index-table tbody tr.contract-index-row {
   position: relative;
+  /* Safari doesn't treat `position: relative` on a table-row as a containing
+     block for absolutely-positioned descendants — the full-row `::after`
+     link below escapes to an ancestor further up the tree, so every row's
+     click target ends up overlapping and only the last row's link wins.
+     A (no-op) transform reliably creates a containing block regardless of
+     display type, sidestepping the table-row quirk. */
+  transform: translate(0, 0);
   transition: background 0.12s ease;
 }
 .md-typeset .contract-index-table tbody tr.contract-index-row:not(.contract-index-row-static):hover,
@@ -143,7 +154,7 @@
 }
 .md-typeset .contract-index-table tbody .contract-index-name a code,
 .contract-index-table tbody .contract-index-name a code {
-  color: var(--md-primary-fg-color);
+  color: var(--md-accent-fg-color);
   background: transparent;
   font-weight: 600;
   padding: 0;
@@ -199,9 +210,20 @@
 .md-typeset .contract-fields-table .contract-fields-req,
 .contract-fields-table .contract-fields-req {
   text-align: center;
-  color: var(--md-primary-fg-color);
+  color: var(--md-accent-fg-color);
   font-weight: 700;
 }
+/* Name column (1st): give it enough width that most field names fit on one
+   line instead of wrapping — long names like the ones with a foreign-key
+   link were getting squeezed into a narrow auto-sized column. */
+.md-typeset .contract-fields-table td:nth-child(1),
+.md-typeset .contract-fields-table th:nth-child(1),
+.contract-fields-table td:nth-child(1),
+.contract-fields-table th:nth-child(1) {
+  white-space: nowrap;
+  width: 1%;
+}
+
 /* Type column (3rd): keep values like "integer" on one line — a narrow column
    wastes a character break on a short, self-contained token. */
 .md-typeset .contract-fields-table td:nth-child(3),
@@ -221,26 +243,40 @@
   color: var(--md-default-fg-color);
 }
 
-/* Foreign-key marker (the small ↗ next to a field name). Linked when the
-   target dimension has a renderable page; plain span when not. */
-.contract-fk {
-  margin-left: 0.3rem;
-  font-size: 0.9em;
-  color: var(--md-primary-fg-color);
+/* Foreign-key field name: the whole name is the link (styled the same colour
+   as every other link on the site) when the target dimension has a
+   renderable page. When it doesn't (e.g. an index_only dimension), it's
+   plain code wrapped in a dotted-underline <abbr> tooltip instead — see
+   .contract-fk-link usage in contracts.py. Both states get the same dotted
+   underline (scoped to the fields table only, not all links site-wide), so
+   it reads as "this is a foreign key" regardless of whether it happens to
+   be clickable. */
+.md-typeset .contract-fk-link,
+.contract-fk-link {
+  color: var(--md-typeset-a-color);
   text-decoration: none;
-  cursor: help;
+  border-bottom: 0.05rem dotted var(--md-typeset-a-color);
 }
-a.contract-fk:hover {
+.md-typeset .contract-fk-link:hover,
+.contract-fk-link:hover {
   color: var(--md-accent-fg-color);
+  border-bottom-color: var(--md-accent-fg-color);
 }
-span.contract-fk {
-  color: var(--md-default-fg-color--light);
-  cursor: default;
+.md-typeset .contract-fk-link code,
+.contract-fk-link code {
+  color: inherit;
+}
+.md-typeset .contract-fields-table abbr,
+.contract-fields-table abbr {
+  cursor: help;
+  text-decoration: none;
+  border-bottom: 0.05rem dotted var(--md-default-fg-color--light);
 }
 
 /* Constraint chips (one per non-required constraint, rendered side-by-side). */
 .contract-constraint {
   display: inline-block;
+  max-width: 100%;
   padding: 0.05rem 0.4rem;
   margin: 0 0.25rem 0.2rem 0;
   border-radius: 4px;
@@ -248,7 +284,11 @@ span.contract-fk {
   font-family: var(--md-code-font-family, monospace);
   font-size: 0.85em;
   color: var(--md-default-fg-color);
-  white-space: nowrap;
+  /* A long enum= chip (a big comma-separated value list) needs to wrap
+     within the cell instead of forcing the whole table wider than the
+     page — nowrap made every constraint a single unbreakable line. */
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 /* =============================================================================
@@ -268,33 +308,52 @@ span.contract-fk {
   margin: 0.25rem 0 0 1.1rem;
 }
 
-/* Cards (shared by node + leaf) — same look at every depth, only indentation differs. */
+/* Cards (shared by node + leaf) — same look at every depth, only indentation differs.
+   Namespaced under .md-typeset and !important on the colour-bearing properties:
+   `<details>` elements otherwise pick up Material's own default admonition look
+   (blue border + tinted background), which outranks a bare `.dim-card` selector
+   on specificity — !important removes any doubt regardless of cascade order. */
+.md-typeset .dim-card,
 .dim-card {
-  border: 1px solid var(--md-default-fg-color--lightest);
+  border: 1px solid var(--md-default-fg-color--lighter) !important;
   border-radius: 8px;
-  padding: 0.55rem 0.8rem;
+  box-shadow: none !important;
+  /* !important: `<details>` has different Material padding rules for the
+     open vs. closed state (`:not([open])` zeroes padding-bottom), which
+     otherwise wins on specificity over a plain `.dim-card` padding value
+     and made the two states look lopsided. */
+  padding: 0.65rem 0.9rem !important;
   margin: 0 !important; /* override user content */
-  background: var(--md-default-bg-color);
-  transition: background 0.12s ease, border-color 0.12s ease;
+  background: var(--md-default-bg-color) !important;
+  transition: border-color 0.12s ease;
 }
+.md-typeset .dim-card:hover,
 .dim-card:hover {
-  background: var(--md-default-fg-color--lightest);
-  border-color: var(--md-default-fg-color--lighter);
+  border-color: var(--md-default-fg-color--light) !important;
+}
+/* Open (expanded) card reads as the "active" one — accent-coloured border,
+   using the same accent variable the rest of the site is themed with. */
+.md-typeset .dim-card[open],
+.dim-card[open] {
+  border-color: var(--md-accent-fg-color) !important;
 }
 
-/* Level accents — left border colour, decreasing intensity with depth. */
-.dim-level-0 { border-left: 4px solid var(--md-primary-fg-color); }
-.dim-level-1 { border-left: 4px solid var(--md-default-fg-color--light); }
-.dim-level-2 { border-left: 4px solid var(--md-default-fg-color--lighter); }
-.dim-level-3 { border-left: 4px solid var(--md-default-fg-color--lightest); }
-
-/* Header row: id followed by label, with a clear gap. */
+/* Header row: id followed by label, with a clear gap. Material's own
+   `.md-typeset summary` styling (blue tint background, left padding reserved
+   for an admonition icon, negative margins) otherwise wins on specificity —
+   reset it all here, same reasoning as the .dim-card fix above. */
+.md-typeset .dim-head,
 .dim-head {
   display: flex;
   align-items: baseline;
-  gap: 0.6rem;
   flex-wrap: wrap;
   cursor: pointer;
+  background: transparent !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  font-weight: normal;
 }
 /* Suppress the native disclosure marker on every browser. */
 .dim-card > summary {
@@ -328,16 +387,17 @@ span.contract-fk {
 .dim-card:not(.dim-leaf) > summary.dim-head::before {
   content: "+" !important;
   display: inline-flex !important;
+  position: static !important; /* Material's summary::before is absolutely positioned by default */
   align-items: center;
   justify-content: center;
   width: 1.1rem;
   height: 1.1rem;
   border-radius: 50%;
-  background: var(--md-primary-fg-color) !important;
+  background: var(--md-accent-fg-color) !important;
   background-image: none !important;
   -webkit-mask-image: none !important;
   mask-image: none !important;
-  color: var(--md-primary-bg-color);
+  color: var(--md-accent-bg-color);
   font-size: 0.85em;
   font-weight: 700;
   line-height: 1;
@@ -349,25 +409,38 @@ span.contract-fk {
 .dim-card:not(.dim-leaf)[open] > summary.dim-head::before {
   content: "\2212" !important; /* − minus sign */
 }
-/* Leaves: no children, so disable the toggle affordance entirely. */
+/* Leaves: no children, so disable the toggle affordance entirely. They also
+   get no +/- badge, so pad the row by the badge's own width (1.1rem +
+   0.5rem gap) to keep every id column aligned whether or not its row has
+   the toggle. */
+.md-typeset .dim-leaf > summary.dim-head,
 .dim-leaf > summary.dim-head {
   cursor: default;
+  padding-left: 1.6rem !important;
 }
 
+.md-typeset .dim-id,
 .dim-id {
   font-size: 0.85em;
-  color: var(--md-default-fg-color);
-  background: transparent;
-  padding: 0;
+  color: var(--md-default-fg-color--light);
+  background: transparent !important;
+  padding: 0 !important;
 }
 .dim-label {
-  color: var(--md-default-fg-color--light);
+  margin-left: 1rem;
+  color: var(--md-default-fg-color);
+  font-weight: 600;
 }
+/* Rendered inline after the label, e.g. "id label – description" — the dash
+   is a decorative prefix so the source description string stays plain text. */
 .dim-desc {
-  margin: 0.35rem 0 0;
+  margin-left: 0.35rem;
   color: var(--md-default-fg-color--light);
   font-size: 0.9em;
-  font-style: italic;
+}
+.dim-desc::before {
+  content: "– "; /* en dash + space — as a hex escape, "\2013 " would have the
+                    trailing space consumed as the escape's terminator */
 }
 
 /* =============================================================================
@@ -412,14 +485,14 @@ table.sortable thead th::after {
 }
 .md-typeset table.sortable thead th[aria-sort="ascending"]::after,
 table.sortable thead th[aria-sort="ascending"]::after {
-  background: var(--md-primary-fg-color);
+  background: var(--md-accent-fg-color);
   opacity: 1;
   -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><polygon points='5,0 10,9 0,9'/></svg>");
           mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><polygon points='5,0 10,9 0,9'/></svg>");
 }
 .md-typeset table.sortable thead th[aria-sort="descending"]::after,
 table.sortable thead th[aria-sort="descending"]::after {
-  background: var(--md-primary-fg-color);
+  background: var(--md-accent-fg-color);
   opacity: 1;
   -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><polygon points='5,10 10,1 0,1'/></svg>");
           mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><polygon points='5,10 10,1 0,1'/></svg>");

@@ -7,10 +7,8 @@ per-dimension page.
 
 ## Bump rules
 
-Every merge to `main` that changes `data/dimensions/dimensions.xlsx`
-triggers an automatic version bump. The bump level is **derived from the
-actual diff** (no commit-message labelling required) and the highest
-severity in a single PR wins.
+Every merge into `main`  that modifies `data/dimensions/dimensions.xlsx` triggers an automatic version bump. The bump level is **determined from the actual changes in the workbook** (no commit-message labels are required). If a pull request contains multiple types of changes, the highest bump level is applied.
+
 
 | Change to a dimension sheet | Level |
 |---|---|
@@ -25,13 +23,12 @@ severity in a single PR wins.
 | Column removed or renamed in a flexible dimension | MAJOR |
 | No data change | none — no bump, no tag |
 
-Contract YAML changes (the `name`, `title`, `description`, or
-`contract_type` fields in `data/dimensions/dim_*.yaml`) do **not** bump the
-version. Only sheet contents do.
+Changes to the contract YAML (`name`, `title`, `description`, or
+`contract_type` fields in `data/dimensions/dim_*.yaml`)  do **not** trigger a version bump. Only changes to the workbook contents are considered.
 
 ### Pre-1.0 mapping
 
-While the bundle is still in `0.x` the levels are mapped down by one step:
+While the bundle is in the `0.x` series, semantic versioning follows the common pre-1.0 convention by reducing bump levels by one step:
 
 - raw `MAJOR` &rarr; effective `MINOR`
 - raw `MINOR` &rarr; effective `PATCH`
@@ -68,14 +65,15 @@ Use the versioned path when you need to pin to a specific release.
 1. Open a PR that changes `data/dimensions/dimensions.xlsx`. The
    `Excel Diff on PR` workflow posts the row-level diff and the **prospective
    version bump** as a comment.
-2. Merge to `main`. The post-merge orchestrator:
+2. Merge the PR into `main`. The post-merge orchestrator:
     - finds the most recent `dimensions-v*` tag,
     - diffs `dimensions.xlsx` between that tag and `HEAD`,
-    - computes the bump,
-    - updates `VERSION`, prepends a `CHANGELOG.md` entry,
-    - commits, tags `dimensions-vX.Y.Z`, and pushes.
+    - determines the required version bump,
+    - updates `VERSION`, prepends an entry in `CHANGELOG.md`,
+    - commits the changes, tags `dimensions-vX.Y.Z`, and pushes both.
 3. The release commit's push triggers a fresh orchestrator run that
    builds and deploys the docs with the new version visible.
+
 
 If no `dimensions-v*` tag exists yet the workflow logs a warning and
 skips the release — manually tag the seed commit (`git tag
