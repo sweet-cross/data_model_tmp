@@ -34,6 +34,7 @@ _MACRO_NAME = "render_assumption"
 def on_config(config):
     return inject_nav_entries(
         config, _SECTION_PATH, assumption_registry, _PAGE_SUBPATH,
+        strip_prefix="scenass_",
     )
 
 

@@ -37,7 +37,7 @@ from registry import (  # noqa: E402
     dimensions_version,
 )
 
-_SECTION_PATH = ["Dimensions", "Dimensions"]
+_SECTION_PATH = ["Dimensions", "Standard Dimensions"]
 _PAGE_SUBPATH = "dimensions/dimensions"
 _DOWNLOAD_SUBPATH = "dimensions"
 _MACRO_NAME = "render_dimension"

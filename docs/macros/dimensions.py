@@ -78,13 +78,18 @@ def _build_tree(df: pd.DataFrame) -> tuple[list[dict], dict[object, list[dict]]]
 
 
 def _render_header(node: dict) -> str:
-    """Render the `id label` header row, escaping for HTML. Drops the label if absent."""
+    """Render the `id label: description` header row, escaping for HTML.
+
+    Label and description are both optional and rendered inline, in that
+    order, so the whole row reads as one line (wrapping naturally if long).
+    """
     node_id = clean(node["id"])
     label = clean(node.get("label"))
+    desc = clean(node.get("description"))
     id_html = f'<code class="dim-id">{html.escape(node_id)}</code>'
-    if label:
-        return f'{id_html}<span class="dim-label">&nbsp;{html.escape(label)}</span>'
-    return id_html
+    label_html = f'<span class="dim-label">{html.escape(label)}</span>' if label else ""
+    desc_html = f'<span class="dim-desc">{html.escape(desc)}</span>' if desc else ""
+    return f"{id_html}{label_html}{desc_html}"
 
 
 def _render_node(node: dict, children_map: dict, depth: int) -> str:
@@ -100,8 +105,6 @@ def _render_node(node: dict, children_map: dict, depth: int) -> str:
     level_cls = f"dim-level-{min(depth, MAX_DEPTH)}"
     leaf_cls = " dim-leaf" if is_leaf else ""
     header = _render_header(node)
-    desc = clean(node.get("description"))
-    desc_html = f'<div class="dim-desc">{html.escape(desc)}</div>' if desc else ""
     if is_leaf:
         children_html = ""
     else:
@@ -110,7 +113,6 @@ def _render_node(node: dict, children_map: dict, depth: int) -> str:
     return (
         f'<details class="dim-card{leaf_cls} {level_cls}">'
         f'<summary class="dim-head">{header}</summary>'
-        f"{desc_html}"
         f"{children_html}"
         "</details>"
     )

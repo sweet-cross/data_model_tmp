@@ -344,15 +344,18 @@ def render_fields_table(
             tooltip = f"Foreign key → {fk['resource']}"
             url = dimension_page_url(fk["resource"], dim_registry, depth)
             if url:
-                name_cell += (
-                    f' <a class="contract-fk" href="{html.escape(url)}" '
-                    f'title="{html.escape(tooltip)}">&#x2197;</a>'
+                # The whole name is the link (not a separate arrow glyph next
+                # to it) so it reads and behaves like every other link on the
+                # site, and the clickable area matches what's visually obvious.
+                name_cell = (
+                    f'<a class="contract-fk-link" href="{html.escape(url)}" '
+                    f'title="{html.escape(tooltip)}">{name_cell}</a>'
                 )
             else:
-                name_cell += (
-                    f' <span class="contract-fk" '
-                    f'title="{html.escape(tooltip)}">&#x2197;</span>'
-                )
+                # No page to link to (e.g. an index_only dimension) — a
+                # dotted-underline tooltip signals "foreign key" without
+                # implying a click will do anything.
+                name_cell = f'<abbr title="{html.escape(tooltip)}">{name_cell}</abbr>'
 
         req_cell = "\u2713" if required else ""
         constraints_cell = " ".join(

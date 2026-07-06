@@ -34,6 +34,7 @@ _MACRO_NAME = "render_result"
 def on_config(config):
     return inject_nav_entries(
         config, _SECTION_PATH, result_registry, _PAGE_SUBPATH,
+        strip_prefix="result_",
     )
 
 

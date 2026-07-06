@@ -1,30 +1,36 @@
-site_name: Cross Data Model Documentation
-site_description: Documentation for the data items used in the Cross project.
-site_author: Sweet Cross Team
+site_name: CROSS Data Model Documentation
+site_description: Documentation for the data model used in SWEET-CROSS.
+site_author: SWEET-CROSS Team
 repo_url: https://github.com/sweet-cross/cross_back
 repo_name: sweet-cross/cross_back
 edit_uri: edit/main/docs/
 
 theme:
   name: material
+  logo: stylesheets/logo.png
+  favicon: stylesheets/favicon.ico
+  font:
+    text: IBM Plex Sans
+    code: JetBrains Mono
   palette:
     # Light mode
     - scheme: default
-      primary: indigo
-      accent: indigo
+      primary: white
+      accent: red
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     # Dark mode
     - scheme: slate
-      primary: indigo
-      accent: indigo
+      primary: black
+      accent: deep orange
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
   features:
     - navigation.tabs
     - navigation.sections
+    - navigation.indexes
     - navigation.top
     - navigation.tracking
     - search.suggest
@@ -54,6 +60,7 @@ markdown_extensions:
   - pymdownx.superfences
 
 extra_css:
+  - stylesheets/theme.css
   - stylesheets/contracts.css
 
 extra_javascript:
@@ -67,7 +74,7 @@ nav:
       - Versioning: dimensions/versioning.md
       # per-dimension pages are injected from registry.py
       # by docs/hooks/dimensions.py
-      - Dimensions:
+      - Standard Dimensions:
           - Overview: dimensions/dimensions/index.md
           # per-dimension pages are injected from registry.py
           # by docs/hooks/dimensions.py

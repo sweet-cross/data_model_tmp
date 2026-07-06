@@ -1,0 +1,100 @@
+/* =============================================================================
+   Site-wide brand theme, matching sweet-cross.ch.
+
+   Palette and font values are taken directly from sweet-cross.ch's compiled
+   CSS (--sweet-red/orange/yellow/green, Space Grotesk / IBM Plex Sans /
+   JetBrains Mono). Component-level styling (tables, cards, buttons) lives in
+   contracts.css and already references Material's --md-* variables, so
+   overriding those variables here reskins those components automatically.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  --sweet-red: #e7181d;
+  --sweet-orange: #f46e20;
+  --sweet-yellow: #fac505;
+  --sweet-green: #0da546;
+  --sweet-gradient: linear-gradient(90deg, var(--sweet-red) 0%, var(--sweet-orange) 33%, var(--sweet-yellow) 66%, var(--sweet-green) 100%);
+}
+
+/* Header background/contrast comes from Material's built-in `white`/`black`
+   swatches (set in mkdocs.yml) — they already handle text/icon contrast
+   correctly, which a hex override on --md-primary-fg-color would not. Only
+   the accent and link colour are swapped in for the exact sweet-cross hues. */
+[data-md-color-scheme="default"] {
+  --md-accent-fg-color: var(--sweet-red);
+  --md-typeset-a-color: var(--sweet-red);
+}
+[data-md-color-scheme="slate"] {
+  --md-accent-fg-color: var(--sweet-orange);
+  --md-typeset-a-color: var(--sweet-orange);
+}
+
+/* Heading font: Space Grotesk, matching the site's display type. Deliberately
+   scoped to page content only (.md-typeset), not .md-header__title/.md-nav__title:
+   Space Grotesk loads async (@import, display=swap), so the fallback font
+   renders first and swaps in once downloaded — a reflow. In the header/nav
+   chrome that reflow happens after Material's JS has already measured
+   header/nav height to size the sticky sidebar, leaving it with a stale,
+   too-short scrollable height (the sidebar then runs out of "stickiness"
+   and scrolls away early). Page content isn't measured that way, so it's safe. */
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4 {
+  font-family: "Space Grotesk", var(--md-text-font-family, sans-serif);
+  font-weight: 600;
+}
+/* Material mutes h1 to --md-default-fg-color--light by default; sweet-cross.ch
+   uses full-strength near-black text for its headings. */
+.md-typeset h1 {
+  color: var(--md-default-fg-color);
+}
+
+/* Signature 4-colour gradient stripe under the header, echoing sweet-cross.ch
+   branding. Sits on the header's bottom edge, between the tabs/hero row and
+   the page content — works with a white header since it's its own element,
+   not a background color. */
+.md-header::after {
+  content: "";
+  display: block;
+  height: 4px;
+  background: var(--sweet-gradient);
+}
+
+/* Material scales the root font-size up on wide screens (137.5% above
+   1600px, 150% above 2000px) — meant to keep line length readable on an
+   unconstrained layout, but this site already caps content at 80rem
+   (.md-grid), so on a large monitor everything (nav, headings, tables)
+   just looks oversized. One unconditional rule (rather than overriding
+   only the two wide-screen media queries) keeps it the same 110% at every
+   width — the previous version left screens below 1600px on Material's
+   unscaled 125% base, which made a large window look smaller than a small
+   one instead of just "not bigger". */
+html {
+  font-size: 110%;
+}
+
+/* Sidebar/tabs nav — a touch smaller than Material's default .7rem. */
+.md-nav {
+  font-size: 0.62rem;
+}
+
+/* Nested section headers (e.g. "Standard Dimensions"/"Flexible Dimensions"
+   under the "Dimensions" tab, "Assumptions"/"Results" under "Variables") —
+   Material renders these bold and muted-grey by default, same as top-level
+   section titles, which reads as heavy and confusingly identical in weight
+   to the tab's own title. Drop the bold and the grey tint. */
+.md-nav__item--section.md-nav__item--nested > .md-nav__link[for] {
+  font-weight: 500;
+  color: var(--md-default-fg-color);
+}
+/* Material zeroes the left padding for a section's children regardless of
+   nesting depth, so a nested section's own children (e.g. every dim_* page
+   under "Standard Dimensions") end up flush with "Standard Dimensions"
+   itself instead of reading as indented beneath it. Restore that indent
+   only for nested sections — top-level sections are left alone. */
+.md-nav__item--section.md-nav__item--nested > .md-nav > .md-nav__list > .md-nav__item {
+  padding-left: 0.6rem;
+}
