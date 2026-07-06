@@ -2,7 +2,7 @@
 #                         TABLE DESCRIPTION
 # ----------------------------------------------------------------------------
 name: dim_use_liquids
-title: Hydrogen end-uses
+title: Liquid fuelds end-uses
 description: |
   List of end-uses of liquid fuels
 
