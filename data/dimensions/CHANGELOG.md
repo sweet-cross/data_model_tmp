@@ -6,6 +6,17 @@ dimension data bundle as a whole; see
 [docs/Dimensions/versioning.md](../../docs/Dimensions/versioning.md) for the
 bump-rule table and release process.
 
+## 0.2.3 — 2026-09-04
+
+- [MINOR] `dim_scenario`: row `73` added
+- [MINOR] `dim_scenario`: row `74` added
+- [MINOR] `dim_scenario`: row `75` added
+- [MINOR] `dim_scenario`: row `76` added
+- [MINOR] `dim_scenario`: row `77` added
+- [MINOR] `dim_scenario`: row `78` added
+- [MINOR] `dim_scenario`: row `79` added
+- [MINOR] `dim_scenario`: row `80` added
+
 ## 0.2.2 — 2026-06-16
 
 - [PATCH] `dim_model`: row `calliope` semantic change (label)
